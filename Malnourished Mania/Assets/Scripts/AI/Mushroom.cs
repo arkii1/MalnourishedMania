@@ -6,23 +6,25 @@ namespace MalnourishedMania
 {
     public class Mushroom : RaycastController
     {
-        public LayerMask playerMask;
+        [SerializeField] LayerMask playerMask;
 
-        public Vector3[] localStopPoints;
-        Vector3[] globalStopPoints;
+        [Header("Properties")]
+        [SerializeField] float speed;
+        [SerializeField] float waitTimeMin = 0.5f, waitTimeMax = 3f;
+        [SerializeField] float jumpForceOnKill;
+        [SerializeField] float detectionRange = 10;
 
-        public float speed;
-        public float waitTimeMin = 0.5f, waitTimeMax = 3f;
-        public float jumpForceOnKill;
-        public float detectionRange = 10;
+        [Header("Patrol waypoints")]
+        [SerializeField] Vector3[] localWayPoints;
 
         bool hit = false;
         bool waiting = false;
 
-        Vector3 target;
-
         float timeToWait;
         float elapsed;
+
+        Vector3 target;
+        Vector3[] globalStopPoints;
 
         MushroomAnimatorSystem mushroomAnimatorSystem;
         SpriteRenderer sr;
@@ -34,22 +36,26 @@ namespace MalnourishedMania
             base.Start();
 
             sr = GetComponent<SpriteRenderer>();
-            mushroomAnimatorSystem = gameObject.AddComponent<MushroomAnimatorSystem>();
-            mushroomAnimatorSystem.Init();
-
             hitAudio = GetComponent<AudioSource>();
 
-            CalculateGlobalStopPoints();
+            InitAnimatorSystem();
+            CalculateGlobalWayPoints();
             SetInitialTargetStopPoint();
         }
 
-        private void CalculateGlobalStopPoints()
+        private void InitAnimatorSystem()
         {
-            globalStopPoints = new Vector3[localStopPoints.Length];
+            mushroomAnimatorSystem = gameObject.AddComponent<MushroomAnimatorSystem>();
+            mushroomAnimatorSystem.Init();
+        }
+
+        private void CalculateGlobalWayPoints()
+        {
+            globalStopPoints = new Vector3[localWayPoints.Length];
 
             for (int i = 0; i < globalStopPoints.Length; i++)
             {
-                globalStopPoints[i] = localStopPoints[i] + transform.position;
+                globalStopPoints[i] = localWayPoints[i] + transform.position;
             }
         }
 
@@ -101,24 +107,6 @@ namespace MalnourishedMania
             return false;
         }
 
-        void ChasePlayer()
-        {
-            if (BlockedByWall() || AtEdgeOfPlatform())
-                return;
-
-            float targetX = FindObjectOfType<PlayerManager>().transform.position.x;
-            Vector3 dirToRun = targetX > transform.position.x ? Vector3.right : Vector3.left;
-            sr.flipX = dirToRun.normalized == Vector3.right;
-            mushroomAnimatorSystem.ChangeAnimationState(mushroomAnimatorSystem.run, sr.flipX);
-            transform.Translate(dirToRun * Time.deltaTime * speed);
-
-            if((FindObjectOfType<PlayerManager>().transform.position - transform.position).magnitude < 0.1f)
-            {
-                FindObjectOfType<PlayerManager>().Hit();
-                Debug.Log("hit by distance");
-            }
-        }
-
         bool BlockedByWall()
         {
             float targetX = FindObjectOfType<PlayerManager>().transform.position.x;
@@ -128,7 +116,7 @@ namespace MalnourishedMania
 
             return false;
         }
-        
+
         bool AtEdgeOfPlatform()
         {
             float targetX = FindObjectOfType<PlayerManager>().transform.position.x;
@@ -150,6 +138,76 @@ namespace MalnourishedMania
             return false;
         }
 
+        void ChasePlayer()
+        {
+            if (BlockedByWall() || AtEdgeOfPlatform())
+                return;
+
+            float targetX = FindObjectOfType<PlayerManager>().transform.position.x;
+            Vector3 dirToRun = targetX > transform.position.x ? Vector3.right : Vector3.left;
+            sr.flipX = dirToRun.normalized == Vector3.right;
+            mushroomAnimatorSystem.ChangeAnimationState(mushroomAnimatorSystem.run, sr.flipX);
+            transform.Translate(dirToRun * Time.deltaTime * speed);
+
+            if((FindObjectOfType<PlayerManager>().transform.position - transform.position).magnitude < 0.1f)
+            {
+                FindObjectOfType<PlayerManager>().Hit();
+                Debug.Log("hit by distance");
+            }
+        }
+
+        private bool ShouldWait()
+        {
+            return Vector3.Distance(transform.position, target) < 0.1f && !waiting;
+        }
+
+        private void StartWaiting()
+        {
+            waiting = true;
+            timeToWait = GetWaitTime();
+            elapsed = 0;
+        }
+
+        float GetWaitTime()
+        {
+            return Random.Range(waitTimeMin, waitTimeMax);
+        }
+
+        private void Wait()
+        {
+            if (timeToWait <= elapsed)
+            {
+                waiting = false;
+                target = CalculateNewTarget();
+            }
+            else
+            {
+                elapsed += Time.deltaTime;
+            }
+            mushroomAnimatorSystem.ChangeAnimationState(mushroomAnimatorSystem.idle, sr.flipX);
+        }
+
+        Vector3 CalculateNewTarget()
+        {
+            Vector3 retVal = Vector3.zero;
+
+            int randIndex = Random.Range(0, globalStopPoints.Length);
+            if (globalStopPoints[randIndex] != target)
+                return globalStopPoints[randIndex];
+
+            return CalculateNewTarget(); //horrible practice but shouldnt cause too much overflow at worst
+        }
+
+        void MoveToTarget()
+        {
+            Vector3 dir = (target - transform.position).normalized;
+            transform.Translate(dir * speed * Time.deltaTime);
+
+            sr.flipX = dir == Vector3.right;
+            mushroomAnimatorSystem.ChangeAnimationState(mushroomAnimatorSystem.run, sr.flipX);
+        }
+
+
         private void FixedUpdate()
         {
             if (hit)
@@ -166,6 +224,31 @@ namespace MalnourishedMania
                 FindObjectOfType<PlayerManager>().Hit();
             }
 
+        }
+
+        bool AIIsHit()
+        {
+            List<RaycastHit2D> aboveCollisions = GetCollisionsAbove(playerMask, 0.1f);
+            if (aboveCollisions.Count > 0)
+            {
+                for (int i = 0; i < aboveCollisions.Count; i++)
+                {
+                    if (aboveCollisions[i].transform.CompareTag("Player"))
+                    {
+                        if (!aboveCollisions[i].transform.GetComponent<PlayerController>().collisions.below)
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private void Hit()
+        {
+            mushroomAnimatorSystem.ChangeAnimationState(mushroomAnimatorSystem.hit, sr.flipX);
+            FindObjectOfType<PlayerManager>().SetVerticalVelocity(jumpForceOnKill);
+            hitAudio.Play();
         }
 
         bool HitPlayer()
@@ -232,93 +315,16 @@ namespace MalnourishedMania
             return false;
         }
 
-        bool AIIsHit()
-        {
-            List<RaycastHit2D> aboveCollisions = GetCollisionsAbove(playerMask, 0.1f);
-            if (aboveCollisions.Count > 0)
-            {
-                for (int i = 0; i < aboveCollisions.Count; i++)
-                {
-                    if (aboveCollisions[i].transform.CompareTag("Player"))
-                    {
-                        if (!aboveCollisions[i].transform.GetComponent<PlayerController>().collisions.below)
-                            return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        private void Hit()
-        {
-            mushroomAnimatorSystem.ChangeAnimationState(mushroomAnimatorSystem.hit, sr.flipX);
-            FindObjectOfType<PlayerManager>().SetVerticalVelocity(jumpForceOnKill);
-            hitAudio.Play();
-        }
-
-        private bool ShouldWait()
-        {
-            return Vector3.Distance(transform.position, target) < 0.1f && !waiting;
-        }
-
-        private void StartWaiting()
-        {
-            //start waiting
-            waiting = true;
-            timeToWait = GetWaitTime();
-            elapsed = 0;
-        }
-
-        float GetWaitTime()
-        {
-            return Random.Range(waitTimeMin, waitTimeMax);
-        }
-
-        private void Wait()
-        {
-            if (timeToWait <= elapsed)
-            {
-                waiting = false;
-                target = CalculateNewTarget();
-            }
-            else
-            {
-                elapsed += Time.deltaTime;
-            }
-            mushroomAnimatorSystem.ChangeAnimationState(mushroomAnimatorSystem.idle, sr.flipX);
-        }
-
-        void MoveToTarget()
-        {
-            Vector3 dir = (target - transform.position).normalized;
-            transform.Translate(dir * speed * Time.deltaTime);
-
-            sr.flipX = dir == Vector3.right;
-            mushroomAnimatorSystem.ChangeAnimationState(mushroomAnimatorSystem.run, sr.flipX);
-        }
-
-        Vector3 CalculateNewTarget()
-        {
-            Vector3 retVal = Vector3.zero;
-
-            int randIndex = Random.Range(0, globalStopPoints.Length);
-            if (globalStopPoints[randIndex] != target)
-                return globalStopPoints[randIndex];
-
-            return CalculateNewTarget(); //horrible practice but shouldnt cause too much overflow at worst
-        }
-
         private void OnDrawGizmos()
         {
-            if (localStopPoints != null)
+            if (localWayPoints != null)
             {
                 Gizmos.color = Color.black;
                 float size = 0.3f;
 
-                for (int i = 0; i < localStopPoints.Length; i++)
+                for (int i = 0; i < localWayPoints.Length; i++)
                 {
-                    Vector3 globalWaypointPosition = Application.isPlaying ? globalStopPoints[i] : localStopPoints[i] + transform.position;
+                    Vector3 globalWaypointPosition = Application.isPlaying ? globalStopPoints[i] : localWayPoints[i] + transform.position;
                     Gizmos.DrawLine(globalWaypointPosition - Vector3.up * size, globalWaypointPosition + Vector3.up * size);
                     Gizmos.DrawLine(globalWaypointPosition - Vector3.left * size, globalWaypointPosition + Vector3.left * size);
                 }

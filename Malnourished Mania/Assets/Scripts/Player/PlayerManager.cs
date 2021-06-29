@@ -90,8 +90,6 @@ namespace MalnourishedMania
         bool inAir = false;
         public bool hit = false;
 
-        public virtual void Hit() { }
-
         #region Velocity stuff
         // PLAYER ONLY - DEAL WITH THIS? This is because sometimes the collision isn't detected on things like arrows and trampolines so it makes it more consistent
         public void ResetDoubleJump()
@@ -145,7 +143,7 @@ namespace MalnourishedMania
 
         #region Health 
 
-        public override void Hit()
+        public void Hit()
         {
             if (hit)
                 return;
