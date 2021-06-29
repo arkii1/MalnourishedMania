@@ -6,10 +6,10 @@ namespace MalnourishedMania
 {
     public class Fire : RaycastController
     {
-        public bool startDelay = false;
-        public float delayAmount = 1f;
-        public float timeBetweenBursts = 2.5f;
-        public int delayNumber = 1;
+        [SerializeField] bool startDelay = false;
+        [SerializeField] float delayAmount = 1f;
+        [SerializeField] float timeBetweenBursts = 2.5f;
+        [SerializeField] int delayNumber = 1;
 
         bool isBursting = false;
         bool delayComplete = false;

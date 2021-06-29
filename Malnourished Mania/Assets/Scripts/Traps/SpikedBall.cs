@@ -6,7 +6,7 @@ namespace MalnourishedMania
 {
     public class SpikedBall : RaycastController
     {
-        public LayerMask playerMask;
+        [SerializeField] LayerMask playerMask;
 
         public override void Start()
         {

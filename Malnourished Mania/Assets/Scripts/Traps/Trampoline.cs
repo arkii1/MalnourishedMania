@@ -6,10 +6,10 @@ namespace MalnourishedMania
 {
     public class Trampoline : RaycastController
     {
-        public LayerMask playerMask;
+        [SerializeField] LayerMask playerMask;
 
-        public float upwardsVelocity = 10;
-        public float rayLength = 0.02f;
+        [SerializeField] float upwardsVelocity = 10;
+        [SerializeField] float rayLength = 0.02f;
 
         TrampolineAnimatorSystem trampolineAnimatorSystem;
         AudioSource audioSource;

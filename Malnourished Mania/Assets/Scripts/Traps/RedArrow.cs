@@ -6,11 +6,11 @@ namespace MalnourishedMania
 {
     public class RedArrow : RaycastController
     {
-        public LayerMask creatureMask;
+        [SerializeField] LayerMask creatureMask;
 
-        public float timeDissapeared = 3;
-        public float speedApplied = 15;
-        public float rayLength = 0.1f;
+        [SerializeField] float timeDissapeared = 3;
+        [SerializeField] float speedApplied = 15;
+        [SerializeField] float rayLength = 0.1f;
 
         ArrowAnimatorSystem arrowAnimatorSystem;
 

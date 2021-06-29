@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-enum Direction
+public enum Direction
 {
     up, down, left, right
 }
-enum CycleType
+public enum CycleType
 {
     leftRight, upDown, cycleClockwise, cycleAntiClockwise
 }
@@ -14,10 +14,10 @@ namespace MalnourishedMania
 {
     public class SpikeHead : RaycastController
     {
-        public CycleType cycleType;
-        public LayerMask playerMask;
+        [SerializeField] CycleType cycleType;
+        [SerializeField] LayerMask playerMask;
 
-        public float speedMult;
+        [SerializeField] float speedMult;
 
         Direction direction;
 

@@ -6,17 +6,18 @@ namespace MalnourishedMania
 {
     public class FallingPlatformController : RaycastController
     {
-        public ParticleSystem particles;
-        public LayerMask passengerMask;
+        [SerializeField]
+        ParticleSystem particles;
+        [SerializeField]
+        LayerMask passengerMask;
 
-        public float initialFallMult = -9.8f;
-        public float riseMult = 10;
-        public float timeContinueFallingWithNoPassengers = 1f;
+        [SerializeField] float initialFallMult = -9.8f;
+        [SerializeField] float riseMult = 10;
+        [SerializeField] float timeContinueFallingWithNoPassengers = 1f;
 
         bool doingFallDelay = true;
 
         float startingY = 0;
-
         float elapsedSincePassengerJoined = 0;
         float elapsedSincePassengerLeft = 0;
 

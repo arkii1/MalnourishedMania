@@ -5,11 +5,11 @@ namespace MalnourishedMania
 {
     public class Fan : RaycastController
     {
-        public LayerMask affectedMask;
-        public ParticleSystem particles;
+        [SerializeField] LayerMask affectedMask;
+        [SerializeField] ParticleSystem particles;
 
-        public float pushSpeed = 2;
-        public float range = 10;
+        [SerializeField] float pushSpeed = 2;
+        [SerializeField] float range = 10;
 
         FanAnimatorSystem fanAnimatorSystem;
 

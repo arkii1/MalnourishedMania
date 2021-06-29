@@ -9,18 +9,18 @@ namespace MalnourishedMania
         public LayerMask passengerMask;
 
         [Header("Saw properties")]
-        public float speed;
-        public bool cyclic = false;
-        public float waitTime;
+        [SerializeField] float speed;
+        [SerializeField] bool cyclic = false;
+        [SerializeField] float waitTime;
         [Range(0,2)]
-        public float easeAmount;
+        [SerializeField] float easeAmount;
 
         [Header("Chain properties")]
-        public GameObject chainPrefab;
-        public float chainSpacing = 1f;
+        [SerializeField] GameObject chainPrefab;
+        [SerializeField] float chainSpacing = 1f;
 
         [Header("Waypoints")]
-        public Vector3[] localWaypoints;
+        [SerializeField] Vector3[] localWaypoints;
         Vector3[] globalWaypoints;
 
         int fromWaypointIndex;

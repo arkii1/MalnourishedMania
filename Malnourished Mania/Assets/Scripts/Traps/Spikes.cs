@@ -5,8 +5,8 @@ namespace MalnourishedMania
 {
     public class Spikes : RaycastController
     {
-        public LayerMask creatureMask;
-        public float rayLength = 0.02f;
+        [SerializeField] LayerMask creatureMask;
+        [SerializeField] float rayLength = 0.02f;
 
         public override void Start()
         {

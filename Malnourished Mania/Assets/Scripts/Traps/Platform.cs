@@ -6,8 +6,8 @@ namespace MalnourishedMania
 {
     public class Platform : RaycastController
     {
-        public LayerMask playerMask;
-        public Sprite bronzeSprite, silverSprite, goldSprite;
+        [SerializeField] LayerMask playerMask;
+        [SerializeField] Sprite bronzeSprite, silverSprite, goldSprite;
 
         public override void Start()
         {

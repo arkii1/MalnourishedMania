@@ -9,24 +9,23 @@ namespace MalnourishedMania
 {
     public class Saw : RaycastController
     {
-        public LayerMask playerMask;
+        [SerializeField] LayerMask playerMask;
 
         [Header("Properties")]
-        public bool cyclic = false;
-        public bool isStationary = true;
-        public bool rotateRightIfStationary = false;
-        public float speed;
-        public float waitTime;
-        [Range(0, 2)]
-        public float easeAmount;
+        [SerializeField] bool cyclic = false;
+        [SerializeField] bool isStationary = true;
+        [SerializeField] bool rotateRightIfStationary = false;
+        [SerializeField] float speed;
+        [SerializeField] float waitTime;
+        [Range(0, 2)][SerializeField] float easeAmount;
 
         [Header("Waypoints")]
-        public Vector3[] localWaypoints;
+        [SerializeField] Vector3[] localWaypoints;
         Vector3[] globalWaypoints;
 
         [Header("Chain properties")]
-        public GameObject chainPrefab;
-        public float chainSpacing;
+        [SerializeField] GameObject chainPrefab;
+        [SerializeField] float chainSpacing;
 
         int fromWaypointIndex;
         float percentBetweenWaypoints;
