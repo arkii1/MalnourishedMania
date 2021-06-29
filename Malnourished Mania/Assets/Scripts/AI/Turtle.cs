@@ -6,12 +6,13 @@ namespace MalnourishedMania
 {
     public class Turtle : RaycastController
     {
-        public LayerMask playerMask;
-        public float timeBetweenSpikesChange = 2.5f;
-        public float jumpForceOnKill = 30;
+        [SerializeField] LayerMask playerMask;
+        [SerializeField] float timeBetweenSpikesChange = 2.5f;
+        [SerializeField] float jumpForceOnKill = 30;
 
         bool spikesIn = true;
         bool hit = false;
+
         float elapsed = 0;
 
         TurtleAnimatorSystem turtleAnimatorSystem;
@@ -20,11 +21,15 @@ namespace MalnourishedMania
         public override void Start()
         {
             base.Start();
-
-            turtleAnimatorSystem = gameObject.AddComponent<TurtleAnimatorSystem>();
-            turtleAnimatorSystem.Init();
+            InitAnimatorSystem();
 
             sr = GetComponent<SpriteRenderer>();
+        }
+
+        private void InitAnimatorSystem()
+        {
+            turtleAnimatorSystem = gameObject.AddComponent<TurtleAnimatorSystem>();
+            turtleAnimatorSystem.Init();
         }
 
         private void Update()
@@ -35,6 +40,26 @@ namespace MalnourishedMania
             }
 
             elapsed += Time.deltaTime;
+        }
+
+        bool NeedToAlternateSpikes()
+        {
+            return elapsed >= timeBetweenSpikesChange;
+        }
+
+        void AlternateSpikes()
+        {
+            if (spikesIn)
+            {
+                turtleAnimatorSystem.ChangeAnimationState(turtleAnimatorSystem.spikesOut, sr.flipX);
+            }
+            else
+            {
+                turtleAnimatorSystem.ChangeAnimationState(turtleAnimatorSystem.spikesIn, sr.flipX);
+            }
+
+            spikesIn = !spikesIn;
+            elapsed = 0;
         }
 
         private void FixedUpdate()
@@ -63,26 +88,6 @@ namespace MalnourishedMania
                     FindObjectOfType<PlayerManager>().Hit();
                 }
             }
-        }
-
-        bool NeedToAlternateSpikes()
-        {
-            return elapsed >= timeBetweenSpikesChange;
-        }
-
-        void AlternateSpikes()
-        {
-            if (spikesIn)
-            {
-                turtleAnimatorSystem.ChangeAnimationState(turtleAnimatorSystem.spikesOut, sr.flipX);
-            }
-            else
-            {
-                turtleAnimatorSystem.ChangeAnimationState(turtleAnimatorSystem.spikesIn, sr.flipX);
-            }
-
-            spikesIn = !spikesIn;
-            elapsed = 0;
         }
 
         private void Hit()
