@@ -6,7 +6,7 @@ namespace MalnourishedMania
 {
     public class RotateGameObject : MonoBehaviour
     {
-        public float rotationSpeed = 22.5f;
+        [SerializeField] float rotationSpeed = 22.5f;
 
         private void Update()
         {
