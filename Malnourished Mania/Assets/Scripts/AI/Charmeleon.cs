@@ -1,33 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MalnourishedMania
 {
     public class Charmeleon : RaycastController
     {
-        [SerializeField] LayerMask playerMask;
+        public LayerMask playerMask;
+        public float speed;
+        public float waitTimeMin = 0.5f, waitTimeMax = 3f;
+        public float jumpForceOnKill = 30f;
+        public float detectionRange = 10;
+        public float attackRange = 2;
+        public float timeBetweenAttacks = 1.5f;
 
-        [Header("Properties")]
-        [SerializeField] float speed;
-        [SerializeField] float waitTimeMin = 0.5f, waitTimeMax = 3f;
-        [SerializeField] float jumpForceOnKill = 30f;
-        [SerializeField] float detectionRange = 10;
-        [SerializeField] float attackRange = 2;
-        [SerializeField] float timeBetweenAttacks = 1.5f;
-
-        [Header("Patrol waypoints")]
-        [SerializeField] Vector3[] localStopPoints;
+        public Vector3[] localStopPoints;
         Vector3[] globalStopPoints;
 
         bool hit = false;
         bool waiting = false;
         bool attacking = false;
 
+        Vector3 target;
+
         float timeToWait;
         float waitElapsed;
-        float elapsedSinceLastAttack;
 
-        Vector3 target;
+        float elapsedSinceLastAttack;
 
         CharmeleonAnimatorSystem charmeleonAnimator;
         SpriteRenderer sr;
@@ -36,21 +35,16 @@ namespace MalnourishedMania
         {
             base.Start();
 
-            InitAnimatorSystem();
+            charmeleonAnimator = gameObject.AddComponent<CharmeleonAnimatorSystem>();
+            charmeleonAnimator.Init();
 
             sr = GetComponent<SpriteRenderer>();
 
-            CalculateGlobalWayPoints();
-            SetInitialTargetWayPoint();
+            CalculateGlobalStopPoints();
+            SetInitialTargetStopPoint();
         }
 
-        private void InitAnimatorSystem()
-        {
-            charmeleonAnimator = gameObject.AddComponent<CharmeleonAnimatorSystem>();
-            charmeleonAnimator.Init();
-        }
-
-        private void CalculateGlobalWayPoints()
+        private void CalculateGlobalStopPoints()
         {
             globalStopPoints = new Vector3[localStopPoints.Length];
 
@@ -60,7 +54,7 @@ namespace MalnourishedMania
             }
         }
 
-        void SetInitialTargetWayPoint()
+        void SetInitialTargetStopPoint()
         {
             int randIndex = Random.Range(0, globalStopPoints.Length);
             target = globalStopPoints[randIndex];
@@ -75,9 +69,10 @@ namespace MalnourishedMania
             CheckForCollisions();
 
             if (attacking)
+            {
                 return;
-
-            if (InAttackRange() && CanAttack())
+            }
+            else if (InAttackRange() && CanAttack())
             {
                 Attack();
             }
@@ -104,10 +99,30 @@ namespace MalnourishedMania
             HandleTimeBetweenAttacks();
         }
 
-        bool InAttackRange()
+        private void CheckForCollisions()
         {
-            Vector3 vecToPlayer = FindObjectOfType<PlayerManager>().transform.position - transform.position;
-            return vecToPlayer.magnitude < attackRange;
+            if (GetCollisionsAbove(playerMask, skinWidth * 2).Count > 0)
+            {
+                if (FindObjectOfType<PlayerController>().collisions.below)
+                {
+                    FindObjectOfType<PlayerManager>().Hit();
+                }
+                else
+                {
+                    Hit();
+                }
+            }
+            else if (GetCollisionsToTheLeft(playerMask, skinWidth * 2).Count > 0 || GetCollisionsToTheRight(playerMask, skinWidth * 2).Count > 0)
+            {
+                FindObjectOfType<PlayerManager>().Hit();
+            }
+        }
+
+        private void HandleTimeBetweenAttacks()
+        {
+            if (attacking)
+                elapsedSinceLastAttack = 0;
+            elapsedSinceLastAttack += Time.deltaTime;
         }
 
         bool CanAttack()
@@ -121,25 +136,32 @@ namespace MalnourishedMania
             attacking = true;
         }
 
-        bool SeesPlayer()
+        bool InAttackRange()
         {
             Vector3 vecToPlayer = FindObjectOfType<PlayerManager>().transform.position - transform.position;
-            if (vecToPlayer.magnitude < detectionRange)
-            {
-                if (!Physics2D.Raycast(transform.position, vecToPlayer.normalized, vecToPlayer.magnitude, collisionMask))
-                {
-                    return true;
-                }
-            }
+            return vecToPlayer.magnitude < attackRange;
+        }
 
-            return false;
+        void ChasePlayer()
+        { 
+            float targetX = FindObjectOfType<PlayerManager>().transform.position.x;
+            Vector3 dirToRun = targetX > transform.position.x ? Vector3.right : Vector3.left;
+            sr.flipX = dirToRun.normalized == Vector3.right;
+            charmeleonAnimator.ChangeAnimationState(charmeleonAnimator.run, sr.flipX);
+            transform.Translate(dirToRun * Time.deltaTime * speed);
+
+            if ((FindObjectOfType<PlayerManager>().transform.position - transform.position).magnitude < 0.1f)
+            {
+                FindObjectOfType<PlayerManager>().Hit();
+                Debug.Log("hit by distance");
+            }
         }
 
         bool BlockedByWall()
         {
             float targetX = FindObjectOfType<PlayerManager>().transform.position.x;
             Vector3 dirToRun = targetX > transform.position.x ? Vector3.right : Vector3.left;
-            if (Physics2D.Raycast(transform.position, dirToRun, (Time.deltaTime * speed) - 2 * skinWidth, collisionMask))
+            if (Physics2D.Raycast(transform.position, dirToRun, (Time.deltaTime * speed) - 2*skinWidth, collisionMask))
                 return true;
 
             return false;
@@ -166,18 +188,87 @@ namespace MalnourishedMania
             return false;
         }
 
-        void ChasePlayer()
-        {
-            float targetX = FindObjectOfType<PlayerManager>().transform.position.x;
-            Vector3 dirToRun = targetX > transform.position.x ? Vector3.right : Vector3.left;
-            sr.flipX = dirToRun.normalized == Vector3.right;
-            charmeleonAnimator.ChangeAnimationState(charmeleonAnimator.run, sr.flipX);
-            transform.Translate(dirToRun * Time.deltaTime * speed);
 
-            if ((FindObjectOfType<PlayerManager>().transform.position - transform.position).magnitude < 0.1f)
+        bool HitPlayer()
+        {
+            if (waiting)
             {
-                FindObjectOfType<PlayerManager>().Hit();
+                List<RaycastHit2D> hits = GetCollisionsToTheRight(playerMask, 2 * skinWidth);
+                if (hits.Count > 0)
+                {
+                    for (int i = 0; i < hits.Count; i++)
+                    {
+                        if (hits[i].transform.CompareTag("Player"))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                List<RaycastHit2D> hits2 = GetCollisionsToTheLeft(playerMask, 2 * skinWidth);
+                if (hits2.Count > 0)
+                {
+                    for (int i = 0; i < hits2.Count; i++)
+                    {
+                        if (hits2[i].transform.CompareTag("Player"))
+                        {
+                            return true;
+                        }
+                    }
+                }
             }
+            else
+            {
+                Vector3 dir = (target - transform.position).normalized;
+                if (dir == Vector3.right)
+                {
+                    List<RaycastHit2D> hits = GetCollisionsToTheRight(playerMask, speed * Time.deltaTime + 2 * skinWidth);
+                    if (hits.Count > 0)
+                    {
+                        for (int i = 0; i < hits.Count; i++)
+                        {
+                            if (hits[i].transform.CompareTag("Player"))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    List<RaycastHit2D> hits = GetCollisionsToTheLeft(playerMask, speed * Time.deltaTime + 2 * skinWidth);
+                    if (hits.Count > 0)
+                    {
+                        for (int i = 0; i < hits.Count; i++)
+                        {
+                            if (hits[i].transform.CompareTag("Player"))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            return false;
+        }
+
+        bool AIIsHit()
+        {
+            List<RaycastHit2D> aboveCollisions = GetCollisionsAbove(playerMask, 0.1f);
+            if (aboveCollisions.Count > 0)
+            {
+                for (int i = 0; i < aboveCollisions.Count; i++)
+                {
+                    if (aboveCollisions[i].transform.CompareTag("Player"))
+                    {
+                        if (!aboveCollisions[i].transform.GetComponent<PlayerController>().collisions.below)
+                            return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private bool ShouldWait()
@@ -187,6 +278,7 @@ namespace MalnourishedMania
 
         private void StartWaiting()
         {
+            //start waiting
             waiting = true;
             timeToWait = GetWaitTime();
             waitElapsed = 0;
@@ -220,46 +312,15 @@ namespace MalnourishedMania
             charmeleonAnimator.ChangeAnimationState(charmeleonAnimator.run, sr.flipX);
         }
 
-        private void HandleTimeBetweenAttacks()
+        Vector3 CalculateNewTarget()
         {
-            if (attacking)
-                elapsedSinceLastAttack = 0;
-            elapsedSinceLastAttack += Time.deltaTime;
-        }
+            Vector3 retVal = Vector3.zero;
 
-        private void FixedUpdate()
-        {
-            if (hit)
-                return;
+            int randIndex = Random.Range(0, globalStopPoints.Length);
+            if (globalStopPoints[randIndex] != target)
+                return globalStopPoints[randIndex];
 
-            UpdateRayCastOrigins();
-            CheckForCollisions();
-        }
-
-        private void CheckForCollisions()
-        {
-            if (GetCollisionsAbove(playerMask, skinWidth * 2).Count > 0)
-            {
-                if (FindObjectOfType<PlayerController>().collisions.below)
-                {
-                    FindObjectOfType<PlayerManager>().Hit();
-                }
-                else
-                {
-                    Hit();
-                }
-            }
-            else if (GetCollisionsToTheLeft(playerMask, skinWidth * 2).Count > 0 || GetCollisionsToTheRight(playerMask, skinWidth * 2).Count > 0)
-            {
-                FindObjectOfType<PlayerManager>().Hit();
-            }
-        }
-
-        private void Hit()
-        {
-            charmeleonAnimator.ChangeAnimationState(charmeleonAnimator.hit, sr.flipX);
-            FindObjectOfType<PlayerManager>().SetVerticalVelocity(jumpForceOnKill);
-            hit = true;
+            return CalculateNewTarget(); //horrible practice but shouldnt cause too much overflow at worst
         }
 
         private void OnDrawGizmos()
@@ -278,6 +339,29 @@ namespace MalnourishedMania
             }
         }
 
+        bool SeesPlayer()
+        {
+            Vector3 vecToPlayer = FindObjectOfType<PlayerManager>().transform.position - transform.position;
+            if (vecToPlayer.magnitude < detectionRange)
+            {
+                if (!Physics2D.Raycast(transform.position, vecToPlayer.normalized, vecToPlayer.magnitude, collisionMask))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void FixedUpdate()
+        {
+            if (hit)
+                return;
+
+            UpdateRayCastOrigins();
+            CheckForCollisions();
+        }
+
         public void EnableTongueHitBox()
         {
             transform.GetChild(0).localPosition = sr.flipX ? new Vector3(1.785f, 0, 0) : new Vector3(-0.655f, 0, 0);
@@ -290,6 +374,12 @@ namespace MalnourishedMania
             attacking = false;
         }
 
+        private void Hit()
+        {
+            charmeleonAnimator.ChangeAnimationState(charmeleonAnimator.hit, sr.flipX);
+            FindObjectOfType<PlayerManager>().SetVerticalVelocity(jumpForceOnKill);
+            hit = true;
+        }
 
         public void DisableGameObject()
         {
