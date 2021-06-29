@@ -7,7 +7,7 @@ namespace MalnourishedMania
 {
     [RequireComponent(typeof(PlayerController))]
     [RequireComponent(typeof(PlayerAnimatorSystem))]
-    public class PlayerManager : CreatureManager
+    public class PlayerManager : MonoBehaviour
     {
         #region Publics
 
@@ -80,6 +80,36 @@ namespace MalnourishedMania
         PlayerAnimatorSystem playerAnimatorSystem;
         AudioSource audioSource;
         #endregion
+
+
+        //=================================
+        Vector3 velocity = Vector3.zero;
+
+        bool velocityExternallyModified = false;
+        bool canDoubleJump = true;
+        bool inAir = false;
+        public bool hit = false;
+
+        public virtual void Hit() { }
+
+        #region Velocity stuff
+        // PLAYER ONLY - DEAL WITH THIS? This is because sometimes the collision isn't detected on things like arrows and trampolines so it makes it more consistent
+        public void ResetDoubleJump()
+        {
+            canDoubleJump = true;
+        }
+
+        public void SetVerticalVelocity(float vel, bool resetDoubleJump = true)
+        {
+            velocity.y = vel;
+            velocityExternallyModified = true;
+
+            if (resetDoubleJump)
+                ResetDoubleJump();
+        }
+
+      
+        //=====================================================
 
         private void Awake()
         {
