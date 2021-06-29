@@ -6,18 +6,22 @@ namespace MalnourishedMania
 {
     public class PlatformController : RaycastController
     {
-        public GameObject chainPrefab;
-        public float chainSpacing = 1f;
         public LayerMask passengerMask;
 
-        public Vector3[] localWaypoints;
-        Vector3[] globalWaypoints;
-
+        [Header("Saw properties")]
         public float speed;
         public bool cyclic = false;
         public float waitTime;
         [Range(0,2)]
         public float easeAmount;
+
+        [Header("Chain properties")]
+        public GameObject chainPrefab;
+        public float chainSpacing = 1f;
+
+        [Header("Waypoints")]
+        public Vector3[] localWaypoints;
+        Vector3[] globalWaypoints;
 
         int fromWaypointIndex;
         float percentBetweenWaypoints;
@@ -32,17 +36,19 @@ namespace MalnourishedMania
         {
             base.Start();
 
+            CalculateGlobalWaypoints();
+            SpawnChains();
+            InitAnimatorSystem();
+        }
+
+        private void CalculateGlobalWaypoints()
+        {
             globalWaypoints = new Vector3[localWaypoints.Length];
 
             for (int i = 0; i < globalWaypoints.Length; i++)
             {
                 globalWaypoints[i] = localWaypoints[i] + transform.position;
             }
-
-            SpawnChains();
-
-            movingPlatformAnimatorSystem = gameObject.AddComponent<MovingPlatformAnimatorSystem>();
-            movingPlatformAnimatorSystem.Init();
         }
 
         void SpawnChains()
@@ -84,6 +90,12 @@ namespace MalnourishedMania
             }
         }
 
+        private void InitAnimatorSystem()
+        {
+            movingPlatformAnimatorSystem = gameObject.AddComponent<MovingPlatformAnimatorSystem>();
+            movingPlatformAnimatorSystem.Init();
+        }
+
         private void FixedUpdate()
         {
             UpdateRayCastOrigins();
@@ -92,7 +104,6 @@ namespace MalnourishedMania
 
             if(velocity != Vector3.zero)
             {
-
                 CalculatePassengerMovement(velocity);
 
                 MovePassengers(true);
@@ -105,13 +116,6 @@ namespace MalnourishedMania
             {
                 movingPlatformAnimatorSystem.ChangeAnimationState(movingPlatformAnimatorSystem.idle);
             }
-
-        }
-
-        float Ease(float x)
-        {
-            float a = easeAmount + 1;
-            return Mathf.Pow(x, a) / (Mathf.Pow(x,a) + Mathf.Pow(1-x,a));
         }
 
         Vector3 CalculatePlatformMovement()
@@ -150,18 +154,10 @@ namespace MalnourishedMania
             return newPosition - transform.position;
         }
 
-        void MovePassengers(bool beforeMovePlatform)
+        float Ease(float x)
         {
-            foreach (PassengerMovement passenger in passengerMovement)
-            {
-                if (!passengerDictionary.ContainsKey(passenger.transform))
-                    passengerDictionary.Add(passenger.transform, passenger.transform.GetComponent<PlayerController>());
-
-                if (passenger.moveBeforePlatform == beforeMovePlatform)
-                {
-                    passengerDictionary[passenger.transform].Move(passenger.velocity, passenger.standingOnPlatform); //was move
-                }
-            }
+            float a = easeAmount + 1;
+            return Mathf.Pow(x, a) / (Mathf.Pow(x, a) + Mathf.Pow(1 - x, a));
         }
 
         void CalculatePassengerMovement(Vector3 velocity)
@@ -262,6 +258,20 @@ namespace MalnourishedMania
                             movedPassengers.Add(hit.transform);
                         }
                     }
+                }
+            }
+        }
+
+        void MovePassengers(bool beforeMovePlatform)
+        {
+            foreach (PassengerMovement passenger in passengerMovement)
+            {
+                if (!passengerDictionary.ContainsKey(passenger.transform))
+                    passengerDictionary.Add(passenger.transform, passenger.transform.GetComponent<PlayerController>());
+
+                if (passenger.moveBeforePlatform == beforeMovePlatform)
+                {
+                    passengerDictionary[passenger.transform].Move(passenger.velocity, passenger.standingOnPlatform); //was move
                 }
             }
         }
