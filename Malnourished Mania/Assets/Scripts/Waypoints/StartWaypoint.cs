@@ -17,19 +17,12 @@ namespace MalnourishedMania
             FindObjectOfType<MonoLevelManager>().AddWaypoint(this);
         }
 
-        public override void FixedUpdate()
-        {
-            
-        }
-
         public void Trigger()
         {
             audioSource.Stop();
             audioSource.Play();
             FindObjectOfType<MonoLevelManager>().TriggerWaypoint(this);
             GetComponent<Animator>().SetTrigger("triggered");
-
-
         }
     }
 }
