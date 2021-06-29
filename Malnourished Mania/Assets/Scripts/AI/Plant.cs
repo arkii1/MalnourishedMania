@@ -6,23 +6,22 @@ namespace MalnourishedMania
 {
     public class Plant : RaycastController
     {
-        public LayerMask playerMask;
-        public float timeBetweenShots;
-        public GameObject bulletPrefab;
+        [SerializeField] float timeBetweenShots;
+        [SerializeField] float jumpForceOnKill = 5;
+
+        [SerializeField] LayerMask playerMask;
+        [SerializeField] GameObject bulletPrefab;
+
+        [SerializeField] AudioClip shootClip;
+        [SerializeField] AudioClip deathClip;
 
         PlantAnimatorSystem plantAnimatorSystem;
         SpriteRenderer sr;
         AudioSource audioSource;
 
-        public AudioClip shootClip;
-        public AudioClip deathClip;
-
-
         float elapsed = 0;
         bool isShooting = false;
         bool hit = false;
-
-        public float jumpForceOnKill = 5; 
 
         public override void Start()
         {
@@ -31,6 +30,11 @@ namespace MalnourishedMania
             sr = GetComponent<SpriteRenderer>();
             audioSource = GetComponent<AudioSource>();
 
+            InitAnimatorSystem();
+        }
+
+        private void InitAnimatorSystem()
+        {
             plantAnimatorSystem = gameObject.AddComponent<PlantAnimatorSystem>();
             plantAnimatorSystem.Init();
             plantAnimatorSystem.ChangeAnimationState(plantAnimatorSystem.idle, sr.flipX);
@@ -58,11 +62,10 @@ namespace MalnourishedMania
             if (isShooting)
                 return;
 
-            if(elapsed >= timeBetweenShots)
+            if (CanShoot())
             {
                 Shoot();
-                isShooting = true;
-                elapsed = 0f;
+                
             }
             else
             {
@@ -78,14 +81,37 @@ namespace MalnourishedMania
             PlayDeathAudio();
         }
 
+        void PlayDeathAudio()
+        {
+            if (audioSource.clip != deathClip)
+                audioSource.clip = deathClip;
+
+            audioSource.Play();
+        }
+
+        private bool CanShoot()
+        {
+            return elapsed >= timeBetweenShots;
+        }
+
         private void Shoot()
         {
             plantAnimatorSystem.ChangeAnimationState(plantAnimatorSystem.shoot, sr.flipX);
 
             if (FindObjectOfType<CameraShake>() && GetComponent<SpriteRenderer>().isVisible)
                 PlayShootAudio();
+
+            isShooting = true;
+            elapsed = 0f;
         }
 
+        void PlayShootAudio()
+        {
+            if (audioSource.clip != shootClip)
+                audioSource.clip = shootClip;
+
+            audioSource.Play();
+        }
 
         public void InstantiateBullet()
         {
@@ -108,21 +134,6 @@ namespace MalnourishedMania
             hit = false;
         }
 
-        void PlayShootAudio()
-        {
-            if (audioSource.clip != shootClip)
-                audioSource.clip = shootClip;
-
-            audioSource.Play();
-        }
-
-        void PlayDeathAudio()
-        {
-            if (audioSource.clip != deathClip)
-                audioSource.clip = deathClip;
-
-            audioSource.Play();
-        }
     }
 }
 
