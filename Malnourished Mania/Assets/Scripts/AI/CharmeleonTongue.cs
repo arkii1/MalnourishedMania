@@ -6,8 +6,7 @@ namespace MalnourishedMania
 {
     public class CharmeleonTongue : RaycastController
     {
-        public LayerMask playerMask;
-
+        [SerializeField] LayerMask playerMask;
 
         private void FixedUpdate()
         {
@@ -19,8 +18,6 @@ namespace MalnourishedMania
 
         private void Update()
         {
-            //For some magical reason my players layers is changing or something. Even when i turn the layer switch off so i have to do this code
-            //===============================================================================
             Collider2D[] results = new Collider2D[5];
             ContactFilter2D filter = new ContactFilter2D();
             filter.layerMask = playerMask;
@@ -42,7 +39,6 @@ namespace MalnourishedMania
                     }
                 }
             }
-            //===============================================================================
 
             if (GetAllCollisions(playerMask, 2 * skinWidth).Count > 0)
             {
