@@ -181,7 +181,7 @@ namespace MalnourishedMania
         {
             if (isStationary)
             {
-                sawAnimatorSystem.ChangeAnimationState(rotateRightIfStationary ? sawAnimatorSystem.rotateRight : sawAnimatorSystem.rotateRight;);
+                sawAnimatorSystem.ChangeAnimationState(rotateRightIfStationary ? sawAnimatorSystem.rotateRight : sawAnimatorSystem.rotateRight);
             }
             else if (rotationDir == SawRotationDirection.none)
             {
