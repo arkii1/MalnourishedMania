@@ -1,28 +1,29 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace MalnourishedMania
 {
     public class Bluebird : RaycastController
     {
-        public LayerMask playerMask;
 
-        public Vector3[] localStopPoints;
+        [SerializeField] LayerMask playerMask;
+
+        [Header("Bluebird properties")]
+        [SerializeField] float speed;
+        [SerializeField] float waitTimeMin = 0.5f, waitTimeMax = 3f;
+        [SerializeField] float jumpForceOnKill;
+        [SerializeField] float detectionRange = 10;
+
+        [Header("Waypoints")]
+        [SerializeField] Vector3[] localStopPoints;
         Vector3[] globalStopPoints;
-
-        public float speed;
-        public float waitTimeMin = 0.5f, waitTimeMax = 3f;
-        public float jumpForceOnKill;
-        public float detectionRange = 10;
 
         bool hit = false;
         bool waiting = false;
-
-        Vector3 target;
-
         float timeToWait;
         float elapsed;
+
+        Vector3 target;
 
         BluebirdAnimatorSystem bluebirdAnimatorSystem;
         SpriteRenderer sr;
@@ -30,15 +31,20 @@ namespace MalnourishedMania
         public override void Start()
         {
             base.Start();
-            bluebirdAnimatorSystem = gameObject.AddComponent<BluebirdAnimatorSystem>();
-            bluebirdAnimatorSystem.Init();
-            sr = GetComponent<SpriteRenderer>();
 
-            CalculateGlobalStopPoints();
-            SetInitialTargetStopPoint();
+            InitAnimatorSystem();
+            sr = GetComponent<SpriteRenderer>();
+            CalculateGlobalWayPoints();
+            SetInitialTargetWayPoint();
         }
 
-        private void CalculateGlobalStopPoints()
+        private void InitAnimatorSystem()
+        {
+            bluebirdAnimatorSystem = gameObject.AddComponent<BluebirdAnimatorSystem>();
+            bluebirdAnimatorSystem.Init();
+        }
+
+        private void CalculateGlobalWayPoints()
         {
             globalStopPoints = new Vector3[localStopPoints.Length];
 
@@ -48,7 +54,7 @@ namespace MalnourishedMania
             }
         }
 
-        void SetInitialTargetStopPoint()
+        void SetInitialTargetWayPoint()
         {
             int randIndex = Random.Range(0, globalStopPoints.Length);
             target = globalStopPoints[randIndex];
@@ -89,8 +95,11 @@ namespace MalnourishedMania
         {
             Vector3 targetVec = FindObjectOfType<PlayerManager>().transform.position - transform.position;
             Vector3 dirToPlayer = targetVec.x > transform.position.x ? Vector3.right : Vector3.left;
+
             sr.flipX = dirToPlayer.normalized == Vector3.right;
+
             bluebirdAnimatorSystem.ChangeAnimationState(bluebirdAnimatorSystem.flying, sr.flipX);
+
             transform.Translate(targetVec.normalized * Time.deltaTime * speed);
 
             if ((FindObjectOfType<PlayerManager>().transform.position - transform.position).magnitude < 0.1f)
@@ -100,6 +109,58 @@ namespace MalnourishedMania
             }
         }
 
+        private bool ShouldWait()
+        {
+            return Vector3.Distance(transform.position, target) < 0.1f && !waiting;
+        }
+
+        private void StartWaiting()
+        {
+            waiting = true;
+            timeToWait = GetWaitTime();
+            elapsed = 0;
+        }
+
+        float GetWaitTime()
+        {
+            return Random.Range(waitTimeMin, waitTimeMax);
+        }
+
+        private void Wait()
+        {
+            if (timeToWait <= elapsed)
+            {
+                waiting = false;
+                target = CalculateNewTarget();
+            }
+            else
+            {
+                elapsed += Time.deltaTime;
+            }
+            bluebirdAnimatorSystem.ChangeAnimationState(bluebirdAnimatorSystem.flying, sr.flipX);
+        }
+
+        Vector3 CalculateNewTarget()
+        {
+            Vector3 retVal = Vector3.zero;
+
+            int randIndex = Random.Range(0, globalStopPoints.Length);
+            if (globalStopPoints[randIndex] != target)
+                return globalStopPoints[randIndex];
+
+            return CalculateNewTarget(); //horrible practice but shouldnt cause too much overflow at worst
+        }
+
+        void MoveToTarget()
+        {
+            Vector3 dir = (target - transform.position).normalized;
+            transform.Translate(dir * speed * Time.deltaTime);
+
+            sr.flipX = target.x > transform.position.x;
+            bluebirdAnimatorSystem.ChangeAnimationState(bluebirdAnimatorSystem.flying, sr.flipX);
+        }
+
+
         private void FixedUpdate()
         {
             if (hit)
@@ -108,17 +169,40 @@ namespace MalnourishedMania
             UpdateRayCastOrigins();
             if (AIIsHit())
             {
-                Debug.Log("ai is hit");
                 hit = true;
                 Hit();
             }
             else if (HitPlayer())
             {
-                Debug.Log("hit player");
                 FindObjectOfType<PlayerManager>().Hit();
             }
 
         }
+
+        bool AIIsHit()
+        {
+            List<RaycastHit2D> aboveCollisions = GetCollisionsAbove(playerMask, 0.1f);
+            if (aboveCollisions.Count > 0)
+            {
+                for (int i = 0; i < aboveCollisions.Count; i++)
+                {
+                    if (aboveCollisions[i].transform.CompareTag("Player"))
+                    {
+                        if (!aboveCollisions[i].transform.GetComponent<PlayerController>().collisions.below)
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private void Hit()
+        {
+            bluebirdAnimatorSystem.ChangeAnimationState(bluebirdAnimatorSystem.hit, sr.flipX);
+            FindObjectOfType<PlayerManager>().SetVerticalVelocity(jumpForceOnKill);
+        }
+
 
         bool HitPlayer()
         {
@@ -182,82 +266,6 @@ namespace MalnourishedMania
 
 
             return false;
-        }
-
-        bool AIIsHit()
-        {
-            List<RaycastHit2D> aboveCollisions = GetCollisionsAbove(playerMask, 0.1f);
-            if (aboveCollisions.Count > 0)
-            {
-                for (int i = 0; i < aboveCollisions.Count; i++)
-                {
-                    if (aboveCollisions[i].transform.CompareTag("Player"))
-                    {
-                        if (!aboveCollisions[i].transform.GetComponent<PlayerController>().collisions.below)
-                            return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        private void Hit()
-        {
-            bluebirdAnimatorSystem.ChangeAnimationState(bluebirdAnimatorSystem.hit, sr.flipX);
-            FindObjectOfType<PlayerManager>().SetVerticalVelocity(jumpForceOnKill);
-        }
-
-        private bool ShouldWait()
-        {
-            return Vector3.Distance(transform.position, target) < 0.1f && !waiting;
-        }
-
-        private void StartWaiting()
-        {
-            //start waiting
-            waiting = true;
-            timeToWait = GetWaitTime();
-            elapsed = 0;
-        }
-
-        float GetWaitTime()
-        {
-            return Random.Range(waitTimeMin, waitTimeMax);
-        }
-
-        private void Wait()
-        {
-            if (timeToWait <= elapsed)
-            {
-                waiting = false;
-                target = CalculateNewTarget();
-            }
-            else
-            {
-                elapsed += Time.deltaTime;
-            }
-            bluebirdAnimatorSystem.ChangeAnimationState(bluebirdAnimatorSystem.flying, sr.flipX);
-        }
-
-        void MoveToTarget()
-        {
-            Vector3 dir = (target - transform.position).normalized;
-            transform.Translate(dir * speed * Time.deltaTime);
-
-            sr.flipX = target.x > transform.position.x;
-            bluebirdAnimatorSystem.ChangeAnimationState(bluebirdAnimatorSystem.flying, sr.flipX);
-        }
-
-        Vector3 CalculateNewTarget()
-        {
-            Vector3 retVal = Vector3.zero;
-
-            int randIndex = Random.Range(0, globalStopPoints.Length);
-            if (globalStopPoints[randIndex] != target)
-                return globalStopPoints[randIndex];
-
-            return CalculateNewTarget(); //horrible practice but shouldnt cause too much overflow at worst
         }
 
         private void OnDrawGizmos()
