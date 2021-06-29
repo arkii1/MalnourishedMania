@@ -6,24 +6,26 @@ namespace MalnourishedMania
 {
     public class Skull : RaycastController
     {
-        public LayerMask playerMask;
+        [SerializeField] LayerMask playerMask;
 
-        public Vector3[] localStopPoints;
+        [Header("Skull properties")]
+        [SerializeField] float speed;
+        [SerializeField] float enrageSpeedMult = 1.5f;
+        [SerializeField] float waitTimeMin = 0.5f, waitTimeMax = 3f;
+        [SerializeField] float jumpForceOnKill;
+        [SerializeField] float detectionRange = 10;
+        [SerializeField] float timeBetweenEnrage = 5f;
+        [SerializeField] float timeEnraged = 7f;
+
+        [Header("Patrol waypoints")]
+        [SerializeField] Vector3[] localStopPoints;
         Vector3[] globalStopPoints;
 
-        public float speed;
-        public float enrageSpeedMult = 1.5f;
-        public float waitTimeMin = 0.5f, waitTimeMax = 3f;
-        public float jumpForceOnKill;
-        public float detectionRange = 10;
-        public float timeBetweenEnrage = 5f;
-        public float timeEnraged = 7f;
+        Vector3 target;
 
         bool hit = false;
         bool waiting = false;
         bool enraged = false;
-
-        Vector3 target;
 
         float timeToWait;
         float elapsed;
@@ -36,15 +38,20 @@ namespace MalnourishedMania
         public override void Start()
         {
             base.Start();
-            skullAnimatorSystem = gameObject.AddComponent<SkullAnimatorSystem>();
-            skullAnimatorSystem.Init();
+            InitAnimatorSystem();
             sr = GetComponent<SpriteRenderer>();
 
-            CalculateGlobalStopPoints();
-            SetInitialTargetStopPoint();
+            CalculateGlobalWayPoints();
+            SetInitialTargetWayPoint();
         }
 
-        private void CalculateGlobalStopPoints()
+        private void InitAnimatorSystem()
+        {
+            skullAnimatorSystem = gameObject.AddComponent<SkullAnimatorSystem>();
+            skullAnimatorSystem.Init();
+        }
+
+        private void CalculateGlobalWayPoints()
         {
             globalStopPoints = new Vector3[localStopPoints.Length];
 
@@ -54,7 +61,7 @@ namespace MalnourishedMania
             }
         }
 
-        void SetInitialTargetStopPoint()
+        void SetInitialTargetWayPoint()
         {
             int randIndex = Random.Range(0, globalStopPoints.Length);
             target = globalStopPoints[randIndex];
@@ -86,21 +93,6 @@ namespace MalnourishedMania
             else
             {
                 MoveToTarget();
-            }
-        }
-
-        void RunFromPlayer()
-        {
-            Vector3 targetVec = -(FindObjectOfType<PlayerManager>().transform.position - transform.position);
-            Vector3 dirToPlayer = targetVec.x > transform.position.x ? Vector3.right : Vector3.left;
-            sr.flipX = FindObjectOfType<PlayerManager>().transform.position.x > transform.position.x;
-            skullAnimatorSystem.ChangeAnimationState(enraged ? skullAnimatorSystem.idleEnrage : skullAnimatorSystem.idle, sr.flipX);
-            transform.Translate(targetVec.normalized * Time.deltaTime * speed * (enraged ? enrageSpeedMult : 1));
-
-            if ((FindObjectOfType<PlayerManager>().transform.position - transform.position).magnitude < 0.1f)
-            {
-                FindObjectOfType<PlayerManager>().Hit();
-                Debug.Log("hit by distance");
             }
         }
 
@@ -137,19 +129,9 @@ namespace MalnourishedMania
             skullAnimatorSystem.ChangeAnimationState(skullAnimatorSystem.derage, sr.flipX);
         }
 
-        void SetEnragedToFalse() //for end of derage animation
-        {
-            enraged = false;
-        }
-
         void Enrage()
         {
             skullAnimatorSystem.ChangeAnimationState(skullAnimatorSystem.enrage, sr.flipX);
-        }
-
-        void SetEnragedToTrue()
-        {
-            enraged = true;
         }
 
         bool PlayerIsInDetectionRange()
@@ -164,14 +146,88 @@ namespace MalnourishedMania
             Vector3 dirToPlayer = targetVec.x > transform.position.x ? Vector3.right : Vector3.left;
             sr.flipX = FindObjectOfType<PlayerManager>().transform.position.x < transform.position.x;
             skullAnimatorSystem.ChangeAnimationState(enraged ? skullAnimatorSystem.idleEnrage : skullAnimatorSystem.idle, sr.flipX);
-            
+
             transform.Translate(targetVec.normalized * Time.deltaTime * speed * (enraged ? enrageSpeedMult : 1));
 
             if ((FindObjectOfType<PlayerManager>().transform.position - transform.position).magnitude < 0.1f)
             {
                 FindObjectOfType<PlayerManager>().Hit();
-                Debug.Log("hit by distance");
             }
+        }
+
+        void RunFromPlayer()
+        {
+            Vector3 targetVec = -(FindObjectOfType<PlayerManager>().transform.position - transform.position);
+            Vector3 dirToPlayer = targetVec.x > transform.position.x ? Vector3.right : Vector3.left;
+            sr.flipX = FindObjectOfType<PlayerManager>().transform.position.x > transform.position.x;
+            skullAnimatorSystem.ChangeAnimationState(enraged ? skullAnimatorSystem.idleEnrage : skullAnimatorSystem.idle, sr.flipX);
+            transform.Translate(targetVec.normalized * Time.deltaTime * speed * (enraged ? enrageSpeedMult : 1));
+
+            if ((FindObjectOfType<PlayerManager>().transform.position - transform.position).magnitude < 0.1f)
+            {
+                FindObjectOfType<PlayerManager>().Hit();
+            }
+        }
+
+        void SetEnragedToFalse() //for end of derage animation
+        {
+            enraged = false;
+        }
+
+        void SetEnragedToTrue()
+        {
+            enraged = true;
+        }
+
+        private bool ShouldWait()
+        {
+            return Vector3.Distance(transform.position, target) < 0.1f && !waiting;
+        }
+
+        private void StartWaiting()
+        {
+            waiting = true;
+            timeToWait = GetWaitTime();
+            elapsed = 0;
+        }
+
+        float GetWaitTime()
+        {
+            return Random.Range(waitTimeMin, waitTimeMax);
+        }
+
+        private void Wait()
+        {
+            if (timeToWait <= elapsed)
+            {
+                waiting = false;
+                target = CalculateNewTarget();
+            }
+            else
+            {
+                elapsed += Time.deltaTime;
+            }
+            skullAnimatorSystem.ChangeAnimationState(enraged ? skullAnimatorSystem.idleEnrage : skullAnimatorSystem.idle, sr.flipX);
+        }
+
+        Vector3 CalculateNewTarget()
+        {
+            Vector3 retVal = Vector3.zero;
+
+            int randIndex = Random.Range(0, globalStopPoints.Length);
+            if (globalStopPoints[randIndex] != target)
+                return globalStopPoints[randIndex];
+
+            return CalculateNewTarget(); //horrible practice but shouldnt cause too much overflow at worst
+        }
+
+        void MoveToTarget()
+        {
+            Vector3 dir = (target - transform.position).normalized;
+            transform.Translate(dir * speed * Time.deltaTime * (enraged ? enrageSpeedMult : 1));
+
+            sr.flipX = target.x < transform.position.x;
+            skullAnimatorSystem.ChangeAnimationState(enraged ? skullAnimatorSystem.idleEnrage : skullAnimatorSystem.idle, sr.flipX);
         }
 
         private void FixedUpdate()
@@ -198,6 +254,30 @@ namespace MalnourishedMania
                 FindObjectOfType<PlayerManager>().Hit();
             }
 
+        }
+
+        bool AIIsHit()
+        {
+            List<RaycastHit2D> aboveCollisions = GetCollisionsAbove(playerMask, 0.1f);
+            if (aboveCollisions.Count > 0)
+            {
+                for (int i = 0; i < aboveCollisions.Count; i++)
+                {
+                    if (aboveCollisions[i].transform.CompareTag("Player"))
+                    {
+                        if (!aboveCollisions[i].transform.GetComponent<PlayerController>().collisions.below)
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private void Hit()
+        {
+            skullAnimatorSystem.ChangeAnimationState(skullAnimatorSystem.hit, sr.flipX);
+            FindObjectOfType<PlayerManager>().SetVerticalVelocity(jumpForceOnKill);
         }
 
         bool HitPlayer()
@@ -262,107 +342,6 @@ namespace MalnourishedMania
 
 
             return false;
-        }
-
-        bool AIIsHit()
-        {
-            List<RaycastHit2D> aboveCollisions = GetCollisionsAbove(playerMask, 0.1f);
-            if (aboveCollisions.Count > 0)
-            {
-                for (int i = 0; i < aboveCollisions.Count; i++)
-                {
-                    if (aboveCollisions[i].transform.CompareTag("Player"))
-                    {
-                        if (!aboveCollisions[i].transform.GetComponent<PlayerController>().collisions.below)
-                            return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        private void Hit()
-        {
-            skullAnimatorSystem.ChangeAnimationState(skullAnimatorSystem.hit, sr.flipX);
-            FindObjectOfType<PlayerManager>().SetVerticalVelocity(jumpForceOnKill);
-        }
-
-        private bool ShouldWait()
-        {
-            return Vector3.Distance(transform.position, target) < 0.1f && !waiting;
-        }
-
-        private void StartWaiting()
-        {
-            //start waiting
-            waiting = true;
-            timeToWait = GetWaitTime();
-            elapsed = 0;
-        }
-
-        float GetWaitTime()
-        {
-            return Random.Range(waitTimeMin, waitTimeMax);
-        }
-
-        private void Wait()
-        {
-            if (timeToWait <= elapsed)
-            {
-                waiting = false;
-                target = CalculateNewTarget();
-            }
-            else
-            {
-                elapsed += Time.deltaTime;
-            }
-            skullAnimatorSystem.ChangeAnimationState(enraged ? skullAnimatorSystem.idleEnrage : skullAnimatorSystem.idle, sr.flipX);
-        }
-
-        void MoveToTarget()
-        {
-            Vector3 dir = (target - transform.position).normalized;
-            transform.Translate(dir * speed * Time.deltaTime * (enraged ? enrageSpeedMult : 1));
-
-            sr.flipX = target.x < transform.position.x;
-            skullAnimatorSystem.ChangeAnimationState(enraged ? skullAnimatorSystem.idleEnrage : skullAnimatorSystem.idle, sr.flipX);
-        }
-
-        Vector3 CalculateNewTarget()
-        {
-            Vector3 retVal = Vector3.zero;
-
-            int randIndex = Random.Range(0, globalStopPoints.Length);
-            if (globalStopPoints[randIndex] != target)
-                return globalStopPoints[randIndex];
-
-            return CalculateNewTarget(); //horrible practice but shouldnt cause too much overflow at worst
-        }
-
-        List<RaycastHit2D> GetObstacle(Vector3 velocity)
-        {
-            List<RaycastHit2D> retList = new List<RaycastHit2D>();
-            
-            
-            // /------------------------|
-            ///-------------X--------|/ |
-            //|            /         |  |
-            //|           /          |  |
-            //|          .           |  |
-            //|                      |  |
-            //|                      |  |
-            //|                      | -
-            //|----------------------|-
-            
-            //so, from dir start from transform and get the point on the collider that goes in that direction
-            //then do a raycast from that point
-          
-            //
-
-
-
-            return retList;
         }
 
         private void OnDrawGizmos()
