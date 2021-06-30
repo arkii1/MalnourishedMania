@@ -7,9 +7,9 @@ namespace MalnourishedMania
 {
     public class GameUIMaster : MonoBehaviour
     {
-        public GameObject ingameUI;
-        public GameObject pauseUI;
-        public GameObject postLevelUI;
+        [SerializeField] GameObject ingameUI;
+        [SerializeField] GameObject pauseUI;
+        [SerializeField] GameObject postLevelUI;
 
         public GameUIState state;
 

@@ -7,14 +7,14 @@ namespace MalnourishedMania
 {
     public class InGameUI : MonoBehaviour
     {
-        public Image pineappleImage;
-        public Image kiwiImage;
-        public Image melonImage;
-        public Image strawberryImage;
-        public Image bananaImage;
+        [SerializeField] Image pineappleImage;
+        [SerializeField] Image kiwiImage;
+        [SerializeField] Image melonImage;
+        [SerializeField] Image strawberryImage;
+        [SerializeField] Image bananaImage;
 
-        public Sprite kiwi, pineapple, melon, strawberry, banana;
-        public Sprite kiwiOutline, pineappleOutline, melonOutline, strawberryOutline, bananaOutline;
+        [SerializeField] Sprite kiwi, pineapple, melon, strawberry, banana;
+        [SerializeField] Sprite kiwiOutline, pineappleOutline, melonOutline, strawberryOutline, bananaOutline;
 
         private void Start()
         {

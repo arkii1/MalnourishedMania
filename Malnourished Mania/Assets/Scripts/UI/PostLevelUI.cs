@@ -9,15 +9,15 @@ namespace MalnourishedMania
 {
     public class PostLevelUI : MonoBehaviour
     {
-        public Image bananaImage, kiwiImage, melonImage, pineappleImage, strawberryImage;
+        [SerializeField] Image bananaImage, kiwiImage, melonImage, pineappleImage, strawberryImage;
 
-        public Image inGameBananaImage, inGameKiwiImage, inGameMelonImage, inGamePineappleImage, inGameStrawberryImage;
+        [SerializeField] Image inGameBananaImage, inGameKiwiImage, inGameMelonImage, inGamePineappleImage, inGameStrawberryImage;
 
-        public Sprite bananaOL, kiwiOL, melonOL, pineappleOL, strawberryOL;
+        [SerializeField] Sprite bananaOL, kiwiOL, melonOL, pineappleOL, strawberryOL;
 
-        public Sprite banana, kiwi, melon, pineapple, strawberry;
+        [SerializeField] Sprite banana, kiwi, melon, pineapple, strawberry;
 
-        public GameObject levelComplete, playNextLevelButton;
+        [SerializeField] GameObject levelComplete, playNextLevelButton;
 
         private void OnEnable()
         {

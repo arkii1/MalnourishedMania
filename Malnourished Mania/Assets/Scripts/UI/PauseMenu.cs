@@ -7,9 +7,9 @@ namespace MalnourishedMania
 {
     public class PauseMenu : MonoBehaviour
     {
-        public Image banana, kiwi, melon, pineapple, strawberry;
+        [SerializeField] Image banana, kiwi, melon, pineapple, strawberry;
 
-        public Image inGameBananaImage, inGameKiwiImage, inGameMelonImage, inGamePineappleImage, inGameStrawberryImage;
+        [SerializeField] Image inGameBananaImage, inGameKiwiImage, inGameMelonImage, inGamePineappleImage, inGameStrawberryImage;
 
         private void OnEnable()
         {

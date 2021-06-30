@@ -7,10 +7,10 @@ namespace MalnourishedMania
 {
     public class MainMenu : MonoBehaviour
     {
-        public GameObject mainMenu;
-        public GameObject levelSelect;
+        [SerializeField] GameObject mainMenu;
+        [SerializeField] GameObject levelSelect;
 
-        public GameObject level2LockImage, level3LockImage, level4LockImage, level5LockImage;
+        [SerializeField] GameObject level2LockImage, level3LockImage, level4LockImage, level5LockImage;
 
         private void Awake()
         {
