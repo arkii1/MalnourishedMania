@@ -6,15 +6,16 @@ namespace MalnourishedMania
 {
     public class EndWaypoint : RaycastController
     {
-        public LayerMask affectedMask;
-        float rayLength = 0.02f + skinWidth;
-
+        [HideInInspector]
         public bool hitPlayer = false;
 
-        EndWaypointAnimtorSystem endWaypointAnimtorSystem;
-        public GameObject fx;
+        [SerializeField] LayerMask affectedMask;
+        [SerializeField] GameObject fx;
+        [SerializeField] float timeUntilTransition = 3;
 
-        public float timeUntilTransition = 3;
+
+        EndWaypointAnimtorSystem endWaypointAnimtorSystem;
+        float rayLength = 0.02f + skinWidth;
 
         public override void Start()
         {
