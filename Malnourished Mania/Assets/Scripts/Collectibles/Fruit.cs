@@ -6,7 +6,9 @@ namespace MalnourishedMania
 {
     public class Fruit : RaycastController
     {
-        [SerializeField] FruitType fruitType;
+        [HideInInspector]
+        public FruitType fruitType;
+
         [SerializeField] LayerMask affectedMask;
         [SerializeField] bool collected = false;
 
