@@ -67,7 +67,7 @@ namespace MalnourishedMania
                     affectedTransforms.Add(hitList[i].transform);
 
                     Vector2 velocityToAdd = transform.up * pushSpeed * Time.deltaTime;
-                    hitList[i].transform.GetComponent<CreatureManager>().AddVelocity(velocityToAdd);
+                    hitList[i].transform.GetComponent<PlayerManager>().AddVelocity(velocityToAdd);
                 }
             }
         }

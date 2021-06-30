@@ -23,7 +23,7 @@ namespace MalnourishedMania
         {
             for (int i = 0; i < hitList.Count; i++)
             {
-                hitList[i].transform.GetComponent<CreatureManager>().Hit();
+                hitList[i].transform.GetComponent<PlayerManager>().Hit();
             }
         }
     }

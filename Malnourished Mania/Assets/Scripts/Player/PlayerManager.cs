@@ -90,24 +90,8 @@ namespace MalnourishedMania
         bool inAir = false;
         public bool hit = false;
 
-        #region Velocity stuff
-        // PLAYER ONLY - DEAL WITH THIS? This is because sometimes the collision isn't detected on things like arrows and trampolines so it makes it more consistent
-        public void ResetDoubleJump()
-        {
-            canDoubleJump = true;
-        }
-
-        public void SetVerticalVelocity(float vel, bool resetDoubleJump = true)
-        {
-            velocity.y = vel;
-            velocityExternallyModified = true;
-
-            if (resetDoubleJump)
-                ResetDoubleJump();
-        }
-
-      
-        //=====================================================
+    
+        //====================================================
 
         private void Awake()
         {
@@ -396,6 +380,33 @@ namespace MalnourishedMania
             elapsedCoyoteTime = 0.0f;
             triggerCoyoteTime = false;
         }
+
+        public void ResetDoubleJump()
+        {
+            canDoubleJump = true;
+        }
+
+        public void AddVelocity(Vector3 vel)
+        {
+            velocity += vel;
+            velocityExternallyModified = true;
+        }
+
+        public void SetVelocity(Vector2 vel)
+        {
+            velocity = vel;
+            velocityExternallyModified = true;
+        }
+
+        public void SetVerticalVelocity(float vel, bool resetDoubleJump = true)
+        {
+            velocity.y = vel;
+            velocityExternallyModified = true;
+
+            if (resetDoubleJump)
+                ResetDoubleJump();
+        }
+
         #endregion
 
         #region Facing direction

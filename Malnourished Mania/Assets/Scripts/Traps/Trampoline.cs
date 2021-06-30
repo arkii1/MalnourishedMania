@@ -62,8 +62,8 @@ namespace MalnourishedMania
 
                     alreadyAffectedSet.Add(hitList[i]);
 
-                    hitList[i].transform.GetComponent<CreatureManager>().SetVelocity(transform.up * upwardsVelocity);
-                    hitList[i].transform.GetComponent<CreatureManager>().ResetDoubleJump();
+                    hitList[i].transform.GetComponent<PlayerManager>().SetVelocity(transform.up * upwardsVelocity);
+                    hitList[i].transform.GetComponent<PlayerManager>().ResetDoubleJump();
 
                     audioSource.Play();
 

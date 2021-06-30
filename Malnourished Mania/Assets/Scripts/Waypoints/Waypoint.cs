@@ -10,10 +10,9 @@ namespace MalnourishedMania
         public AudioSource audioSource;
         [HideInInspector]
         public Vector2 spawnPoint;
+        public int index = 0; //higher means prioritised over others. So want check points near the end at a higher order
 
         [SerializeField] LayerMask playerMask;
-
-        [SerializeField] int index = 0; //higher means prioritised over others. So want check points near the end at a higher order
         [SerializeField] bool triggered = false;
 
         WaypointAnimatorSystem waypointAnimatorSystem;

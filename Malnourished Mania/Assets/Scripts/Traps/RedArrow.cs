@@ -46,8 +46,8 @@ namespace MalnourishedMania
         {
             for (int i = 0; i < creatures.Count; i++)
             {
-                creatures[i].transform.GetComponent<CreatureManager>().SetVelocity(transform.up * speedApplied);
-                creatures[i].transform.GetComponent<CreatureManager>().ResetDoubleJump();
+                creatures[i].transform.GetComponent<PlayerManager>().SetVelocity(transform.up * speedApplied);
+                creatures[i].transform.GetComponent<PlayerManager>().ResetDoubleJump();
 
                 arrowAnimatorSystem.ChangeAnimationState(arrowAnimatorSystem.triggered);
 
