@@ -61,7 +61,7 @@ namespace MalnourishedMania
             //Bind the movement to the desired range
             Vector3 newPos = GetVec3() * traumaMag * Trauma;
             //transform.position += newPos;
-            GetComponent<CameraFollow>().camOffset = newPos;
+            GetComponent<CameraFollow>().CamOffset = newPos;
             //rotation modifier applied here
             transform.localRotation = Quaternion.Euler(new Vector3(0, 0, (newPos.z * traumaRotMag)));
             //decay faster at higher values

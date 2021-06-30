@@ -6,27 +6,28 @@ namespace MalnourishedMania
 {
     public class CameraFollow : MonoBehaviour
     {
-        public bool tester = false;
-        public GameObject maskedDude, virtualGuy, pinkMan, ninjaFrog;
+        [SerializeField] GameObject maskedDude, virtualGuy, pinkMan, ninjaFrog;
 
-        public PlayerController target;
-        PlayerInput playerInput;
-        public float verticalOffset;
-        public float lookAheadDistanceX;
-        public float lookAheadDistanceY;
-        public float lookSmoothTimeX;
-        public float lookSmoothTimeY;
-        public float lookSmoothTimeReturnY;//when camera returns from a look ahead y
-        public float verticalSmoothTime;
-        public Vector2 focusAreaSize;
-        public Vector3 camOffset;
+        [SerializeField] float verticalOffset;
+        [SerializeField] float lookAheadDistanceX;
+        [SerializeField] float lookAheadDistanceY;
+        [SerializeField] float lookSmoothTimeX;
+        [SerializeField] float lookSmoothTimeY;
+        [SerializeField] float lookSmoothTimeReturnY;//when camera returns from a look ahead y
+        [SerializeField] float verticalSmoothTime;
+        [SerializeField] float targetLookAheadY;
+
+
+        [SerializeField] Vector2 focusAreaSize;
+        [SerializeField] Vector3 camOffset;
+
+        public Vector3 CamOffset { set { camOffset = value; } }
 
         FocusArea focusArea;
 
         float currentLookAheadX;
         float targetLookAheadX;
         float currentLookAheadY;
-        public float targetLookAheadY;
 
         float lookAheadDirX;
         float lookAheadDirY;
@@ -37,6 +38,9 @@ namespace MalnourishedMania
 
         bool lookAheadStoppedX;
         bool lookAheadStoppedY;
+
+        PlayerController target;
+        PlayerInput playerInput;
 
         public void Init(Characters character)
         {
