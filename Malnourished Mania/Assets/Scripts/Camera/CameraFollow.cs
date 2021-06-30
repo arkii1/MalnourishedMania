@@ -44,25 +44,22 @@ namespace MalnourishedMania
 
         public void Init(Characters character)
         {
-            if (!tester)
+            switch (character)
             {
-                switch (character)
-                {
-                    case Characters.maskedDude:
-                        target = maskedDude.GetComponent<PlayerController>();
-                        break;
-                    case Characters.ninjaFrog:
-                        target = ninjaFrog.GetComponent<PlayerController>();
-                        break;
-                    case Characters.pinkMan:
-                        target = pinkMan.GetComponent<PlayerController>();
-                        break;
-                    case Characters.virtualGuy:
-                        target = virtualGuy.GetComponent<PlayerController>();
-                        break;
-                    default:
-                        break;
-                }
+                case Characters.maskedDude:
+                    target = maskedDude.GetComponent<PlayerController>();
+                    break;
+                case Characters.ninjaFrog:
+                    target = ninjaFrog.GetComponent<PlayerController>();
+                    break;
+                case Characters.pinkMan:
+                    target = pinkMan.GetComponent<PlayerController>();
+                    break;
+                case Characters.virtualGuy:
+                    target = virtualGuy.GetComponent<PlayerController>();
+                    break;
+                default:
+                    break;
             }
             
             focusArea = new FocusArea(target.boxCollider.bounds, focusAreaSize);
