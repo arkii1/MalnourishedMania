@@ -11,23 +11,23 @@ public enum TrapFacingDirection
 public class RaycastController : MonoBehaviour
 {
     #region Variables
-    public LayerMask collisionMask;
+    protected LayerMask collisionMask;
 
-    public const float skinWidth = 0.000005f;
-    public int horizontalRayCount = 4;
-    public int verticalRayCount = 4;
+    protected const float skinWidth = 0.000005f;
+    protected int horizontalRayCount = 4;
+    protected int verticalRayCount = 4;
     [HideInInspector]
-    public float horizontalRaySpacing;
+    protected float horizontalRaySpacing;
     [HideInInspector]
-    public float verticalRaySpacing;
+    protected float verticalRaySpacing;
 
     [HideInInspector]
     public BoxCollider2D boxCollider;
     [HideInInspector]
-    public RaycastOrigins raycastOrigins;
+    protected RaycastOrigins raycastOrigins;
 
     [HideInInspector]
-    public TrapFacingDirection trapFacingDirection = TrapFacingDirection.up; //0 = up, 1 = right, 2 = down, 3 = left
+    protected TrapFacingDirection trapFacingDirection = TrapFacingDirection.up; //0 = up, 1 = right, 2 = down, 3 = left
     #endregion
 
     public virtual void Awake() => boxCollider = GetComponent<BoxCollider2D>();

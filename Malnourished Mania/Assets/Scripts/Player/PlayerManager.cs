@@ -9,111 +9,94 @@ namespace MalnourishedMania
     [RequireComponent(typeof(PlayerAnimatorSystem))]
     public class PlayerManager : MonoBehaviour
     {
-        #region Publics
-
-        public GameObject runningParticles;
-
+        #region Variables
         [Header("Gameplay Variables")]
-        public float traumaOnHit = 0.3f;
+        [SerializeField] float traumaOnHit = 0.3f;
 
         //Jump stuff
-        public float maxJumpHeight = 2.5f;
-        public float minJumpHeight = 1;
-        public float timeToJumpApex = 0.3f;
-        public float coyoteTime = 0.5f;
+        [SerializeField] float maxJumpHeight = 2.5f;
+        [SerializeField] float minJumpHeight = 1;
+        [SerializeField] float timeToJumpApex = 0.3f;
+        [SerializeField] float coyoteTime = 0.5f;
 
         //Run stuff
-        public float accelerationTimeInAir = 0.2f;
-        public float acceelerationTimeGrounded = 0.1f;
-        public float moveSpeed = 6;
-
-        [Range(0,1)]
-        public float iceAccelerationMult = 0.4f;
+        [SerializeField] float accelerationTimeInAir = 0.2f;
+        [SerializeField] float acceelerationTimeGrounded = 0.1f;
+        [SerializeField] float moveSpeed = 6;
 
         //Wall stuff
-        public float wallSlideSpeedMax = 3;
-        public float wallStickTime = 0.25f;
-        public float wallJumpDelay = 0.25f;
-        public Vector2 wallJumpClimb;
-        public Vector2 wallJumpOff;
-        public Vector2 wallLeap;
+        [SerializeField] float wallSlideSpeedMax = 3;
+        [SerializeField] float wallStickTime = 0.25f;
+        [SerializeField] float wallJumpDelay = 0.25f;
+        [SerializeField] Vector2 wallJumpClimb;
+        [SerializeField] Vector2 wallJumpOff;
+        [SerializeField] Vector2 wallLeap;
 
-        public float verticalModifierSpeed;
+        //Audio
+        [Header("Audio")]
+        [SerializeField] AudioClip jumpClip;
+        [SerializeField] AudioClip hitClip;
+        [SerializeField] AudioClip dissapearClip;
 
-        [Header("Assignable Variables")]
+        float gravity;
+        float maxJumpVelocity;
+        float minJumpVelocity;
+        float velocityXSmoothing;
+
+        // Coyote time
+        float elapsedCoyoteTime = 0.0f;
+        bool onGroundLastFrame = false;
+        bool triggerCoyoteTime = false;
+
+        // Wall variables
+        float timeToWallUnstick;
+        bool wallSliding = false;
+        int wallDirX;
+        float wallJumpDelayTimer = 0;
+
+        int lastFacingDirection = 1;
+
+        bool velocityExternallyModified = false;
+        bool canDoubleJump = true;
+        bool inAir = false;
+
+        [HideInInspector] public bool hit = false;
+
+        Vector3 velocity = Vector3.zero;
+
+        // Particle variables
         Vector3 particlesAtFeetOffset = new Vector3(0, -0.5f, -1);
-
         Vector3 particleWallJumpTowardsLeftOffset = new Vector3(0.289f, -0.44f, -1);
         Vector3 particleWallJumpTowardsLeftRotation = new Vector3(0, 0, 45);
         Vector3 particleWallJumpTowardsRightOffset = new Vector3(-0.289f, -0.44f, -1);
         Vector3 particleWallJumpTowardsRightRotation = new Vector3(0, 0, -45);
 
-        //Audio
-        [Header("Audio")]
-        public AudioClip jumpClip;
-        public AudioClip hitClip;
-        public AudioClip dissapearClip;
-        #endregion
-
-        #region Privates
-        float gravity;
-
-        float maxJumpVelocity;
-        float minJumpVelocity;
-        float velocityXSmoothing;
-
-        float elapsedCoyoteTime = 0.0f;
-        public bool onGroundLastFrame = false;
-        public bool triggerCoyoteTime = false;
-
-        float timeToWallUnstick;
-        public bool wallSliding = false;
-        int wallDirX;
-
-        int lastFacingDirection = 1;
-
-        float wallJumpDelayTimer = 0;
-
-        [HideInInspector]
-        public PlayerInput playerInput;
+        // Components
+        [Header("Components")]
         PlayerController playerController;
         PlayerAnimatorSystem playerAnimatorSystem;
         AudioSource audioSource;
+        [SerializeField] GameObject runningParticles;
+        [HideInInspector] public PlayerInput playerInput;
         #endregion
-
-
-        //=================================
-        Vector3 velocity = Vector3.zero;
-
-        bool velocityExternallyModified = false;
-        bool canDoubleJump = true;
-        bool inAir = false;
-        public bool hit = false;
-
-    
-        //====================================================
 
         private void Awake()
         {
             playerController = GetComponent<PlayerController>();
+            InitAnimatorSystem();
+            audioSource = GetComponent<AudioSource>();
+            InitJumpValues();
+        }
 
+        private void InitAnimatorSystem()
+        {
             playerAnimatorSystem = gameObject.AddComponent<PlayerAnimatorSystem>();
             playerAnimatorSystem.Init();
-
-            audioSource = GetComponent<AudioSource>();
-
-            InitJumpValues();
         }
 
         private void Update()
         {
-            if (playerInput.PauseInputIsPressed())
-            {
-                if(FindObjectOfType<GameUIMaster>().state == GameUIState.ingame)
-                    FindObjectOfType<GameUIMaster>().PauseGame();
-                else if (FindObjectOfType<GameUIMaster>().state == GameUIState.paused)
-                    FindObjectOfType<GameUIMaster>().ResumeGame();
-            }
+            HandlePauseMenu();
 
             if (hit || FindObjectOfType<GameUIMaster>() != null && FindObjectOfType<GameUIMaster>().state != GameUIState.ingame)
                 return;
@@ -124,9 +107,18 @@ namespace MalnourishedMania
             HandleLandingParticles();
         }
 
+        private void HandlePauseMenu()
+        {
+            if (playerInput.PauseInputIsPressed())
+            {
+                if (FindObjectOfType<GameUIMaster>().state == GameUIState.ingame)
+                    FindObjectOfType<GameUIMaster>().PauseGame();
+                else if (FindObjectOfType<GameUIMaster>().state == GameUIState.paused)
+                    FindObjectOfType<GameUIMaster>().ResumeGame();
+            }
+        }
 
         #region Health 
-
         public void Hit()
         {
             if (hit)
@@ -532,8 +524,6 @@ namespace MalnourishedMania
             audioSource.clip = dissapearClip;
             audioSource.Play();
         }
-
-        
 
         #endregion
     }
