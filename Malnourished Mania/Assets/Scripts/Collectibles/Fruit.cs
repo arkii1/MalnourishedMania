@@ -6,18 +6,14 @@ namespace MalnourishedMania
 {
     public class Fruit : RaycastController
     {
-        public FruitType fruitType;
-
-        public LayerMask affectedMask;
+        [SerializeField] FruitType fruitType;
+        [SerializeField] LayerMask affectedMask;
+        [SerializeField] bool collected = false;
 
         float rayLength = 0.02f + skinWidth;
 
-        public bool collected = false;
-
         FruitAnimatorSystem fruitAnimatorSystem;
         AudioSource audioSource;
-
-        public int index;
 
         public override void Start()
         {
@@ -30,7 +26,6 @@ namespace MalnourishedMania
         {
             fruitAnimatorSystem = gameObject.AddComponent<FruitAnimatorSystem>();
             fruitAnimatorSystem.Init();
-
             fruitAnimatorSystem.ChangeAnimationState(fruitAnimatorSystem.idle);
         }
 
@@ -39,7 +34,7 @@ namespace MalnourishedMania
             if (collected)
                 return;
 
-            if(HitPlayer(GetHitList()))
+            if(HitPlayer(GetAllCollisions(affectedMask, rayLength)))
             {
                 AddFruitToPlayer();
                 
@@ -57,11 +52,6 @@ namespace MalnourishedMania
             }
 
             return false;
-        }
-
-        List<RaycastHit2D> GetHitList()
-        {
-            return GetAllCollisions(affectedMask, rayLength);
         }
 
         void AddFruitToPlayer()
