@@ -125,16 +125,13 @@ MonoBehaviour:
   collisionMask:
     serializedVersion: 2
     m_Bits: 512
-  horizontalRayCount: 4
-  verticalRayCount: 4
-  horizontalRaySpacing: 0
-  verticalRaySpacing: 0
   boxCollider: {fileID: 0}
-  staticTrapDirCase: 0
+  right: 1
   playerMask:
     serializedVersion: 2
     m_Bits: 2048
+  bulletPiece1: {fileID: 1792750276696894673, guid: ea8083306ec914b4f80e80d86d116346,
+    type: 3}
+  bulletPiece2: {fileID: 1649495949915172539, guid: f92fc18e8bdba804dbf7be0faa845acb,
+    type: 3}
   speed: 10
-  piece1: {fileID: 1792750276696894673, guid: ea8083306ec914b4f80e80d86d116346, type: 3}
-  piece2: {fileID: 1649495949915172539, guid: f92fc18e8bdba804dbf7be0faa845acb, type: 3}
-  right: 1

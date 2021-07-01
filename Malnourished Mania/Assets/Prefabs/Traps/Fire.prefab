@@ -4895,17 +4895,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   collisionMask:
     serializedVersion: 2
-    m_Bits: 0
-  horizontalRayCount: 4
-  verticalRayCount: 4
-  horizontalRaySpacing: 0.11649784
-  verticalRaySpacing: 0.16247766
+    m_Bits: 2048
   boxCollider: {fileID: 5047049926826367375}
-  staticTrapDirCase: 0
   startDelay: 0
   delayAmount: 0.25
-  delayNumber: 1
   timeBetweenBursts: 2.5
+  delayNumber: 1
 --- !u!212 &4955077769475323916
 SpriteRenderer:
   m_ObjectHideFlags: 0
