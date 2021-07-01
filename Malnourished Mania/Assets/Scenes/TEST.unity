@@ -129,13 +129,7 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 6077145130362000838}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &1387254843 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8079663559013508259, guid: 31da8905635327f4d89f12ba790efa61,
-    type: 3}
-  m_PrefabInstance: {fileID: 4735389685943739112}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &2073189332
+--- !u!1001 &1375000349
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -155,12 +149,12 @@ PrefabInstance:
     - target: {fileID: 5641098587703636426, guid: 3017a9ae93d283f48b49276343c3f130,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.2896366
+      value: 5.5785694
       objectReference: {fileID: 0}
     - target: {fileID: 5641098587703636426, guid: 3017a9ae93d283f48b49276343c3f130,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.50996375
+      value: -0.43697977
       objectReference: {fileID: 0}
     - target: {fileID: 5641098587703636426, guid: 3017a9ae93d283f48b49276343c3f130,
         type: 3}
@@ -202,13 +196,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8994039317622594349, guid: 3017a9ae93d283f48b49276343c3f130,
-        type: 3}
-      propertyPath: m_PlayOnAwake
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3017a9ae93d283f48b49276343c3f130, type: 3}
+--- !u!4 &1387254843 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8079663559013508259, guid: 31da8905635327f4d89f12ba790efa61,
+    type: 3}
+  m_PrefabInstance: {fileID: 4735389685943739112}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2120448042 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6801085607875673962, guid: 1614a7f8a67cec442b1fa1e60e5619b1,
@@ -878,9 +873,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fca73cb0705d4b4388efa02d483c83f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  velocity: {x: 0, y: 0, z: 0}
-  hit: 0
-  runningParticles: {fileID: 0}
   traumaOnHit: 0.3
   maxJumpHeight: 2
   minJumpHeight: 0.75
@@ -889,20 +881,17 @@ MonoBehaviour:
   accelerationTimeInAir: 0.2
   acceelerationTimeGrounded: 0.05
   moveSpeed: 4.5
-  iceAccelerationMult: 0.4
   wallSlideSpeedMax: 2.5
   wallStickTime: 3
   wallJumpDelay: 0.1
   wallJumpClimb: {x: 4, y: 20}
   wallJumpOff: {x: 6, y: 10}
   wallLeap: {x: 8, y: 16}
-  verticalModifierSpeed: 0
   jumpClip: {fileID: 8300000, guid: 8375777f12cf4284eb1008d2568e747e, type: 3}
   hitClip: {fileID: 8300000, guid: c2da659eddf1745478946760c1ad9f9a, type: 3}
   dissapearClip: {fileID: 8300000, guid: 7e8fa89919521d84b8180dc811d7c545, type: 3}
-  onGroundLastFrame: 0
-  triggerCoyoteTime: 0
-  wallSliding: 0
+  hit: 0
+  runningParticles: {fileID: 0}
 --- !u!114 &1694511095575407355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -918,12 +907,7 @@ MonoBehaviour:
   collisionMask:
     serializedVersion: 2
     m_Bits: 512
-  horizontalRayCount: 16
-  verticalRayCount: 16
-  horizontalRaySpacing: 0
-  verticalRaySpacing: 0
   boxCollider: {fileID: 0}
-  staticTrapDirCase: 0
 --- !u!4 &1702620866213910742
 Transform:
   m_ObjectHideFlags: 0
@@ -1169,14 +1153,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32766695fec07a048a8b7224066650e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tester: 0
   maskedDude: {fileID: 8927363070884151365}
   virtualGuy: {fileID: 8820975434970832663, guid: adebecc853fba9c47a6581956778ce95,
     type: 3}
   pinkMan: {fileID: 1924521237479331414, guid: adebecc853fba9c47a6581956778ce95, type: 3}
   ninjaFrog: {fileID: 5402878183228200985, guid: adebecc853fba9c47a6581956778ce95,
     type: 3}
-  target: {fileID: 8927363070884151367}
   verticalOffset: 0
   lookAheadDistanceX: 1
   lookAheadDistanceY: 1
@@ -1184,9 +1166,9 @@ MonoBehaviour:
   lookSmoothTimeY: 0.1
   lookSmoothTimeReturnY: 0.1
   verticalSmoothTime: 0.1
+  targetLookAheadY: 5
   focusAreaSize: {x: 3, y: 3}
   camOffset: {x: 0, y: 0, z: 0}
-  targetLookAheadY: 5
 --- !u!114 &2278511311290229736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8232,12 +8214,7 @@ MonoBehaviour:
   collisionMask:
     serializedVersion: 2
     m_Bits: 512
-  horizontalRayCount: 16
-  verticalRayCount: 16
-  horizontalRaySpacing: 0
-  verticalRaySpacing: 0
   boxCollider: {fileID: 0}
-  staticTrapDirCase: 0
 --- !u!114 &5173431008054879413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8250,9 +8227,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fca73cb0705d4b4388efa02d483c83f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  velocity: {x: 0, y: 0, z: 0}
-  hit: 0
-  runningParticles: {fileID: 0}
   traumaOnHit: 0.3
   maxJumpHeight: 2
   minJumpHeight: 0.75
@@ -8261,20 +8235,17 @@ MonoBehaviour:
   accelerationTimeInAir: 0.2
   acceelerationTimeGrounded: 0.05
   moveSpeed: 4.5
-  iceAccelerationMult: 0.4
   wallSlideSpeedMax: 2.5
   wallStickTime: 3
   wallJumpDelay: 0.1
   wallJumpClimb: {x: 4, y: 20}
   wallJumpOff: {x: 6, y: 10}
   wallLeap: {x: 8, y: 16}
-  verticalModifierSpeed: 0
   jumpClip: {fileID: 8300000, guid: 8375777f12cf4284eb1008d2568e747e, type: 3}
   hitClip: {fileID: 8300000, guid: c2da659eddf1745478946760c1ad9f9a, type: 3}
   dissapearClip: {fileID: 8300000, guid: 7e8fa89919521d84b8180dc811d7c545, type: 3}
-  onGroundLastFrame: 0
-  triggerCoyoteTime: 0
-  wallSliding: 0
+  hit: 0
+  runningParticles: {fileID: 0}
 --- !u!1 &5173431008054879414
 GameObject:
   m_ObjectHideFlags: 0
@@ -10145,12 +10116,7 @@ MonoBehaviour:
   collisionMask:
     serializedVersion: 2
     m_Bits: 512
-  horizontalRayCount: 16
-  verticalRayCount: 16
-  horizontalRaySpacing: 0
-  verticalRaySpacing: 0
   boxCollider: {fileID: 0}
-  staticTrapDirCase: 0
 --- !u!114 &8600537660726862779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10163,9 +10129,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fca73cb0705d4b4388efa02d483c83f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  velocity: {x: 0, y: 0, z: 0}
-  hit: 0
-  runningParticles: {fileID: 0}
   traumaOnHit: 0.3
   maxJumpHeight: 2
   minJumpHeight: 0.75
@@ -10174,20 +10137,17 @@ MonoBehaviour:
   accelerationTimeInAir: 0.2
   acceelerationTimeGrounded: 0.05
   moveSpeed: 4.5
-  iceAccelerationMult: 0.4
   wallSlideSpeedMax: 2.5
   wallStickTime: 3
   wallJumpDelay: 0.1
   wallJumpClimb: {x: 4, y: 20}
   wallJumpOff: {x: 6, y: 10}
   wallLeap: {x: 8, y: 16}
-  verticalModifierSpeed: 0
   jumpClip: {fileID: 8300000, guid: 8375777f12cf4284eb1008d2568e747e, type: 3}
   hitClip: {fileID: 8300000, guid: c2da659eddf1745478946760c1ad9f9a, type: 3}
   dissapearClip: {fileID: 8300000, guid: 7e8fa89919521d84b8180dc811d7c545, type: 3}
-  onGroundLastFrame: 0
-  triggerCoyoteTime: 0
-  wallSliding: 0
+  hit: 0
+  runningParticles: {fileID: 0}
 --- !u!1839735485 &8612800596627583159
 Tilemap:
   m_ObjectHideFlags: 0
@@ -10276,9 +10236,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fca73cb0705d4b4388efa02d483c83f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  velocity: {x: 0, y: 0, z: 0}
-  hit: 0
-  runningParticles: {fileID: 912108264285362223}
   traumaOnHit: 0.3
   maxJumpHeight: 2
   minJumpHeight: 0.75
@@ -10287,20 +10244,17 @@ MonoBehaviour:
   accelerationTimeInAir: 0.2
   acceelerationTimeGrounded: 0.05
   moveSpeed: 4.5
-  iceAccelerationMult: 0.4
   wallSlideSpeedMax: 2.5
   wallStickTime: 3
   wallJumpDelay: 0.5
   wallJumpClimb: {x: 4, y: 20}
   wallJumpOff: {x: 6, y: 10}
   wallLeap: {x: 8, y: 16}
-  verticalModifierSpeed: 0
   jumpClip: {fileID: 8300000, guid: 8375777f12cf4284eb1008d2568e747e, type: 3}
   hitClip: {fileID: 8300000, guid: c2da659eddf1745478946760c1ad9f9a, type: 3}
   dissapearClip: {fileID: 8300000, guid: 7e8fa89919521d84b8180dc811d7c545, type: 3}
-  onGroundLastFrame: 0
-  triggerCoyoteTime: 0
-  wallSliding: 0
+  hit: 0
+  runningParticles: {fileID: 912108264285362223}
 --- !u!114 &8927363070884151367
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10316,12 +10270,7 @@ MonoBehaviour:
   collisionMask:
     serializedVersion: 2
     m_Bits: 512
-  horizontalRayCount: 16
-  verticalRayCount: 16
-  horizontalRaySpacing: 0
-  verticalRaySpacing: 0
   boxCollider: {fileID: 0}
-  staticTrapDirCase: 0
 --- !u!61 &8927363070884151368
 BoxCollider2D:
   m_ObjectHideFlags: 0
