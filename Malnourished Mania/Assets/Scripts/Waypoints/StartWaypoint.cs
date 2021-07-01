@@ -17,6 +17,11 @@ namespace MalnourishedMania
             FindObjectOfType<MonoLevelManager>().AddWaypoint(this);
         }
 
+        public override void FixedUpdate() // this is not used so waypoint fixed update doesn't get called
+        {
+
+        }
+
         public void Trigger()
         {
             audioSource.Stop();

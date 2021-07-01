@@ -11,6 +11,7 @@ public enum TrapFacingDirection
 public class RaycastController : MonoBehaviour
 {
     #region Variables
+    [SerializeField]
     protected LayerMask collisionMask;
 
     protected const float skinWidth = 0.000005f;
