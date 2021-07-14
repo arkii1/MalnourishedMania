@@ -83,7 +83,7 @@ namespace MalnourishedMania
         void HandleBurst()
         {
             particleSystem.Play();
-            Invoke("BurstEnded", particleSystem.main.duration);
+            Invoke("EndBurst", particleSystem.main.duration);
 
             if (GetComponent<SpriteRenderer>().isVisible)
                 audioSource.Play();

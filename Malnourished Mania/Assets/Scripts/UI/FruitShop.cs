@@ -118,9 +118,9 @@ namespace MalnourishedMania
                     leafBoundaryTiles.SetActive(false);
                     break;
                 case BoundaryTiles.stone:
-                    woodBoundaryTiles.SetActive(false);
+                    woodBoundaryTiles.SetActive(true);
                     stoneBoundaryTiles.SetActive(false);
-                    leafBoundaryTiles.SetActive(true);
+                    leafBoundaryTiles.SetActive(false);
                     break;
                 case BoundaryTiles.leaf:
                     woodBoundaryTiles.SetActive(false);
@@ -247,8 +247,6 @@ namespace MalnourishedMania
             leafCostUI.SetActive(!playerData.unlockedLeafBoundary);
             leafCostUI.GetComponentInChildren<TextMeshProUGUI>().text = "x " + leafBoundaryCost; 
 
-            brownBGCostUI.SetActive(!playerData.unlockedBrownBG);
-            brownBGCostUI.GetComponentInChildren<TextMeshProUGUI>().text = "x " + brownBGCost; 
             grayBGCostUI.SetActive(!playerData.unlockedGrayBG);
             grayBGCostUI.GetComponentInChildren<TextMeshProUGUI>().text = "x " + grayBGCost; 
             greenBGCostUI.SetActive(!playerData.unlockedGreenBG);

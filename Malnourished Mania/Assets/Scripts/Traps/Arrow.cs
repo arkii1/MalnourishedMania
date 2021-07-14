@@ -46,6 +46,7 @@ namespace MalnourishedMania
 
         void TriggerArrow(List<RaycastHit2D> creatures)
         {
+            bool m_camShakeTriggered = false;
             for (int i = 0; i < creatures.Count; i++)
             {
                 creatures[i].transform.GetComponent<PlayerManager>().SetVelocity(transform.up * speedApplied);
@@ -55,8 +56,11 @@ namespace MalnourishedMania
 
                 audioSource.Play();
 
-                FindObjectOfType<CameraShake>().Trauma += 0.2f;
+                m_camShakeTriggered = true;
             }
+
+            if (m_camShakeTriggered)
+                FindObjectOfType<CameraShake>().Trauma += 0.2f;
         }
 
         public void EndArrowTriggeredAnimation()
