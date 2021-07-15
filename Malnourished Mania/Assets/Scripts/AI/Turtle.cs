@@ -17,6 +17,7 @@ namespace MalnourishedMania
 
         TurtleAnimatorSystem turtleAnimatorSystem;
         SpriteRenderer sr;
+        AudioSource audioSource;
 
         public override void Start()
         {
@@ -24,6 +25,7 @@ namespace MalnourishedMania
             InitAnimatorSystem();
 
             sr = GetComponent<SpriteRenderer>();
+            audioSource = GetComponent<AudioSource>();
         }
 
         private void InitAnimatorSystem()
@@ -95,6 +97,8 @@ namespace MalnourishedMania
             turtleAnimatorSystem.ChangeAnimationState(turtleAnimatorSystem.hit, sr.flipX);
             FindObjectOfType<PlayerManager>().SetVerticalVelocity(jumpForceOnKill);
             hit = true;
+            audioSource.Play();
+            FindObjectOfType<CameraShake>().Trauma += 0.3f;
         }
 
         public void DisableGameObject()
