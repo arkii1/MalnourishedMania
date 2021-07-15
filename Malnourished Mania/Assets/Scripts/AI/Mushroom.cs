@@ -249,6 +249,7 @@ namespace MalnourishedMania
             mushroomAnimatorSystem.ChangeAnimationState(mushroomAnimatorSystem.hit, sr.flipX);
             FindObjectOfType<PlayerManager>().SetVerticalVelocity(jumpForceOnKill);
             hitAudio.Play();
+            FindObjectOfType<CameraShake>().Trauma += 0.3f;
         }
 
         bool HitPlayer()

@@ -79,6 +79,7 @@ namespace MalnourishedMania
             plantAnimatorSystem.ChangeAnimationState(plantAnimatorSystem.hit, sr.flipX);
             FindObjectOfType<PlayerManager>().SetVerticalVelocity(jumpForceOnKill);
             PlayDeathAudio();
+            FindObjectOfType<CameraShake>().Trauma += 0.3f;
         }
 
         void PlayDeathAudio()
