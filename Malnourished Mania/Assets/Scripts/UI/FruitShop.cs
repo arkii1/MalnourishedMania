@@ -118,8 +118,8 @@ namespace MalnourishedMania
                     leafBoundaryTiles.SetActive(false);
                     break;
                 case BoundaryTiles.stone:
-                    woodBoundaryTiles.SetActive(true);
-                    stoneBoundaryTiles.SetActive(false);
+                    woodBoundaryTiles.SetActive(false);
+                    stoneBoundaryTiles.SetActive(true);
                     leafBoundaryTiles.SetActive(false);
                     break;
                 case BoundaryTiles.leaf:
