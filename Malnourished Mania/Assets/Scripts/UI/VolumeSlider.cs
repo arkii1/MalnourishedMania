@@ -5,6 +5,7 @@ using UnityEngine.Audio;
 
 public class VolumeSlider : MonoBehaviour
 {
+    [SerializeField]
     AudioMixer mixer;
 
     public void SetLevel(float sliderValue)
